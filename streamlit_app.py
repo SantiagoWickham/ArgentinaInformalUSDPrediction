@@ -119,6 +119,17 @@ elif hoja_sel == "Real vs Predicho":
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.xticks(rotation=45)
+     # Agregar etiqueta para valor predicho junio 2025
+    fecha_junio = pd.Timestamp('2025-06-30 00:00:00')
+    fila_junio = df[df['Mes'] == fecha_junio]
+    if not fila_junio.empty:
+        valor_junio = fila_junio['USD_Predicho_LP'].values[0]
+        ax.annotate(f'Junio: {valor_junio:.2f}',
+                    xy=(fecha_junio, valor_junio),
+                    xytext=(fecha_junio, valor_junio + 30),  # Ajusta según escala vertical
+                    arrowprops=dict(facecolor='black', arrowstyle='->'),
+                    fontsize=12,
+                    ha='center')
 
 # Estilo general
 ax.legend()
