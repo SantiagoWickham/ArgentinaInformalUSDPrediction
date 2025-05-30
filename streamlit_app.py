@@ -92,7 +92,7 @@ if not fila_junio.empty:
     valor_junio = fila_junio['USD_Predicho_CP'].values[0]
     ax.annotate(f'Junio: {valor_junio:.2f}', 
                 xy=(fecha_junio, valor_junio),            # Punto a marcar
-                xytext=(fecha_junio, valor_junio + 20),  # Texto arriba, ajusta el 20 según escala
+                xytext=(fecha_junio, valor_junio + 30),  # Texto arriba, ajusta el 20 según escala
                 arrowprops=dict(facecolor='black', arrowstyle='->'),
                 fontsize=12,
                 ha='center')
