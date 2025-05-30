@@ -204,7 +204,7 @@ elif hoja_sel == "Prediccion_LP":
         name='IC 95%'
     ))
 
-   fig.update_layout(**layout_template("Predicción a Largo Plazo", modo_oscuro))
+    fig.update_layout(**layout_template("Predicción a Largo Plazo", modo_oscuro))
 
 elif hoja_sel == "Real vs Predicho":
     # Real y Predicho
@@ -241,19 +241,18 @@ elif hoja_sel == "Real vs Predicho":
         ))
         # Añadir segundo eje Y para errores
         fig.update_layout(
+            **layout_template("USD Real vs Predicho", modo_oscuro),
             yaxis2=dict(
                 title='Error (Residuo)',
                 overlaying='y',
                 side='right',
                 showgrid=False,
-                zeroline=True,
-                zerolinecolor='rgba(0,0,0,0.3)',
-                zerolinewidth=1,
-                tickformat='.2f',
-                rangemode='tozero'
+                showline=True,
+                linecolor='gray'
             )
         )
-    fig.update_layout(**layout_template("Comparación: Real vs. Predicho", modo_oscuro))
+    else:
+        fig.update_layout(**layout_template("USD Real vs Predicho", modo_oscuro))
 
 # Mostrar gráfico
 st.plotly_chart(fig, use_container_width=True)
