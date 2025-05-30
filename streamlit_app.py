@@ -84,6 +84,17 @@ elif hoja_sel == "Prediccion_CP":
     ax.xaxis.set_major_locator(mdates.MonthLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.xticks(rotation=45)
+    # Etiqueta con primer valor predicho CP (excluyendo la fila "Actual" si tiene Delta=0)
+    primer_pred_cp = df[df['Delta_CP'] != 0].iloc[0]  # Tomar la primera fila con Delta distinto de 0
+    ax.annotate(
+        f'1er Predicho CP:\n{primer_pred_cp["USD_Predicho_CP"]:.2f} ARS\n{primer_pred_cp["Mes"].strftime("%Y-%m-%d")}',
+        xy=(primer_pred_cp['Mes'], primer_pred_cp['USD_Predicho_CP']),
+        xytext=(primer_pred_cp['Mes'], primer_pred_cp['USD_Predicho_CP'] + 40),  # Ajusta vertical
+        arrowprops=dict(facecolor='green', arrowstyle='->'),
+        fontsize=12,
+        ha='center',
+        color='green'
+    )
 
 elif hoja_sel == "Prediccion_LP":
     df_hist = data["Datos Originales"]
@@ -97,6 +108,17 @@ elif hoja_sel == "Prediccion_LP":
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.xticks(rotation=45)
+    # Etiqueta con primer valor predicho LP (excluyendo fila "Actual" con Delta=0)
+    primer_pred_lp = df[df['Delta_LP'] != 0].iloc[0]
+    ax.annotate(
+        f'1er Predicho LP:\n{primer_pred_lp["USD_Predicho_LP"]:.2f} ARS\n{primer_pred_lp["Mes"].strftime("%Y-%m-%d")}',
+        xy=(primer_pred_lp['Mes'], primer_pred_lp['USD_Predicho_LP']),
+        xytext=(primer_pred_lp['Mes'], primer_pred_lp['USD_Predicho_LP'] + 40),
+        arrowprops=dict(facecolor='darkgreen', arrowstyle='->'),
+        fontsize=12,
+        ha='center',
+        color='darkgreen'
+    )
 
 elif hoja_sel == "Real vs Predicho":
     ax.plot(df['Fecha'], df['USD_Real'], label='USD Real', color='black', linewidth=2)
