@@ -5,9 +5,10 @@ import matplotlib.dates as mdates
 import seaborn as sns
 import urllib.parse
 import numpy as np
+import io
 
 # Configuración de página
-st.set_page_config(page_title="Modelo USD Blue | Análisis Económico", layout="wide")
+st.set_page_config(page_title="Modelo USD Blue | Análisis Económico", layout="wide", page_icon="📈")
 st.title("📈 Visualización del Modelo Econométrico del USD Blue")
 
 # Descripción introductoria
@@ -16,12 +17,13 @@ Este dashboard interactivo permite visualizar el comportamiento histórico del d
 así como las proyecciones de corto y largo plazo generadas mediante un modelo econométrico.  
 Las bandas representan intervalos de confianza del 95%.
 
----  
+---
 """)
 
-# Carga de datos
+# ID de Google Sheets
 sheet_id = "1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X"
 
+# Función para cargar hojas
 @st.cache_data(show_spinner=True)
 def cargar_hoja(sheet_id, sheet_name):
     sheet_name_encoded = urllib.parse.quote(sheet_name)
@@ -47,30 +49,16 @@ with st.sidebar:
     hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", hojas)
     st.markdown("---")
     st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X)")
-    # BOTÓN DE DESCARGA DE CSV
-    st.download_button(
-    label="⬇️ Descargar datos en CSV",
-    data=df.to_csv(index=False).encode("utf-8"),
-    file_name=f"{hoja_sel}.csv",
-    mime="text/csv")
-    # BOTÓN PARA DESCARGAR GRÁFICO PNG
-    buf = io.BytesIO()
-    fig.write_image(buf, format="png")
-    st.download_button(
-        label="🖼️ Descargar gráfico en PNG",
-        data=buf.getvalue(),
-        file_name=f"grafico_{hoja_sel}.png",
-        mime="image/png")
 
-# Cargar hojas
+# Carga los datos después de definir la hoja seleccionada
 data = {hoja: cargar_hoja(sheet_id, hoja) for hoja in hojas}
 df = data[hoja_sel]
 
-# Estética de visualización
+# Estilo visual
 sns.set_style("whitegrid")
 fig, ax = plt.subplots(figsize=(14, 6))
 
-# Gráfico según selección
+# Gráfico según hoja seleccionada
 if hoja_sel == "Datos Originales":
     df_hist = df[df['MES'] >= '2020-01-01']
     ax.plot(df_hist['MES'], df_hist['USD_VENTA'], label='USD Blue', color='#003f5c', linewidth=2)
@@ -87,18 +75,7 @@ elif hoja_sel == "Prediccion_CP":
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
     ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
-    primer_mes = df['Mes'].iloc[0]
-    valor_actual = df['USD_Predicho_CP'].iloc[0]
-    segundo_mes = df['Mes'].iloc[1]
-    ic_bajo_segundo = df['IC_Bajo_CP'].iloc[1]
-    ic_alto_segundo = df['IC_Alto_CP'].iloc[1]
-    primer_mes_num = mdates.date2num(primer_mes)
-    segundo_mes_num = mdates.date2num(segundo_mes)
-    ax.plot([primer_mes_num, segundo_mes_num], [valor_actual, ic_bajo_segundo], color='#bde7b7', linewidth=0.5)
-    ax.plot([primer_mes_num, segundo_mes_num], [valor_actual, ic_alto_segundo], color='#bde7b7', linewidth=0.5)
-    ax.fill_between([primer_mes_num, segundo_mes_num], [valor_actual, ic_bajo_segundo], [valor_actual, ic_alto_segundo], color='#bde7b7', alpha=0.25)
-    fechas_ic_num = mdates.date2num(df['Mes'].iloc[1:])
-    ax.fill_between(fechas_ic_num, df['IC_Bajo_CP'].iloc[1:], df['IC_Alto_CP'].iloc[1:], color='#bde7b7', alpha=0.25, label='IC 95%')
+    ax.fill_between(df['Mes'], df['IC_Bajo_CP'], df['IC_Alto_CP'], color='#bde7b7', alpha=0.3, label='IC 95%')
     ax.set_title("Predicción a Corto Plazo", fontsize=16)
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Precio (ARS)")
@@ -111,18 +88,7 @@ elif hoja_sel == "Prediccion_LP":
     df_hist_lp = df_hist[df_hist['MES'] >= '2020-01-01']
     ax.plot(df_hist_lp['MES'], df_hist_lp['USD_VENTA'], label='USD Real', color='#003f5c', linewidth=2)
     ax.plot(df['Mes'], df['USD_Predicho_LP'], label='Predicción LP', color='#7bcf6f', linewidth=2, linestyle='--')
-    primer_mes = df['Mes'].iloc[0]
-    valor_actual = df['USD_Predicho_LP'].iloc[0]
-    segundo_mes = df['Mes'].iloc[1]
-    ic_bajo_segundo = df['IC_Bajo_LP'].iloc[1]
-    ic_alto_segundo = df['IC_Alto_LP'].iloc[1]
-    primer_mes_num = mdates.date2num(primer_mes)
-    segundo_mes_num = mdates.date2num(segundo_mes)
-    ax.plot([primer_mes_num, segundo_mes_num], [valor_actual, ic_bajo_segundo], color='#bde7b7', linewidth=0.5)
-    ax.plot([primer_mes_num, segundo_mes_num], [valor_actual, ic_alto_segundo], color='#bde7b7', linewidth=0.5)
-    ax.fill_between([primer_mes_num, segundo_mes_num], [valor_actual, ic_bajo_segundo], [valor_actual, ic_alto_segundo], color='#bde7b7', alpha=0.25)
-    fechas_ic_num = mdates.date2num(df['Mes'].iloc[1:])
-    ax.fill_between(fechas_ic_num, df['IC_Bajo_LP'].iloc[1:], df['IC_Alto_LP'].iloc[1:], color='#bde7b7', alpha=0.25, label='IC 95%')
+    ax.fill_between(df['Mes'], df['IC_Bajo_LP'], df['IC_Alto_LP'], color='#bde7b7', alpha=0.3, label='IC 95%')
     ax.set_title("Predicción a Largo Plazo", fontsize=16)
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Precio (ARS)")
@@ -145,6 +111,16 @@ ax.legend()
 ax.grid(True, linestyle='--', alpha=0.5)
 sns.despine()
 st.pyplot(fig)
+
+# BOTÓN DE DESCARGA CSV y PNG
+csv_buffer = df.to_csv(index=False).encode("utf-8")
+img_buffer = io.BytesIO()
+fig.savefig(img_buffer, format="png", bbox_inches='tight')
+img_buffer.seek(0)
+
+with st.sidebar:
+    st.download_button("⬇️ Descargar CSV", data=csv_buffer, file_name=f"{hoja_sel}.csv", mime="text/csv")
+    st.download_button("🖼️ Descargar gráfico PNG", data=img_buffer, file_name=f"grafico_{hoja_sel}.png", mime="image/png")
 
 # Footer
 st.markdown("---")
