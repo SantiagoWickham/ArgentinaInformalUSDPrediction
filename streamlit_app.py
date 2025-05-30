@@ -126,4 +126,10 @@ with st.sidebar:
 
 # Footer
 st.markdown("---")
-st.caption("📍 Desarrollado por Santiago Wickham | Lic. en Economía y Finanzas | Datos desde Google Sheets | Visualización con Streamlit + Matplotlib")
+st.markdown("""
+📍 **Desarrollado por:** Santiago Wickham  
+Estudiante de Lic. en Economía y Finanzas  
+
+🔗 [LinkedIn](https://www.linkedin.com/in/santiagowickham/)  
+🐙 [GitHub](https://github.com/SantiagoWickham)
+""")
