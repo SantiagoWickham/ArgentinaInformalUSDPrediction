@@ -68,54 +68,18 @@ with st.sidebar:
 data = {hoja: cargar_hoja(SHEET_ID, hoja) for hoja in HOJAS}
 df = data[hoja_sel]
 
-# Definimos las paletas accesibles con modo claro/oscuro
-PALETAS = {
-    "Finanzas": {
-        "real": "#004165",
-        "predicho_cp": "#2a9d8f",
-        "predicho_lp": "#a3d2ca",
-        "intervalo_confianza": "rgba(163, 210, 202, 0.3)",
-        "error": "#e76f51",
-        "fondo_claro": "#f9f9f9",
-        "fondo_oscuro": "#1e1e1e",
-        "texto_claro": "#000000",
-        "texto_oscuro": "#f0f0f0"
-    },
-    "Macro": {
-        "real": "#1b4332",
-        "predicho_cp": "#40916c",
-        "predicho_lp": "#74c69d",
-        "intervalo_confianza": "rgba(116, 198, 157, 0.3)",
-        "error": "#d00000",
-        "fondo_claro": "#e9f5db",
-        "fondo_oscuro": "#0b3d0b",
-        "texto_claro": "#000000",
-        "texto_oscuro": "#e9f5db"
-    },
-    "Dinámico": {
-        "real": "#003049",
-        "predicho_cp": "#d62828",
-        "predicho_lp": "#f77f00",
-        "intervalo_confianza": "rgba(247, 127, 0, 0.3)",
-        "error": "#fcbf49",
-        "fondo_claro": "#fafafa",
-        "fondo_oscuro": "#222222",
-        "texto_claro": "#000000",
-        "texto_oscuro": "#fafafa"
-    }
+# Paleta accesible WCAG AA/AAA (azul-verde)
+COLOR_PALETA = {
+    "real": "#004165",
+    "predicho_cp": "#2a9d8f",
+    "predicho_lp": "#a3d2ca",
+    "intervalo_confianza": "rgba(163, 210, 202, 0.3)",
+    "error": "#e76f51",
+    "fondo_claro": "#f9f9f9",
+    "fondo_oscuro": "#1e1e1e",
+    "texto_claro": "#000000",
+    "texto_oscuro": "#f0f0f0"
 }
-
-# Sidebar para modo claro/oscuro y elección de paleta
-modo = st.sidebar.radio("Modo de visualización", options=["Claro", "Oscuro"])
-paleta_nombre = st.sidebar.selectbox("Seleccioná paleta de colores", options=list(PALETAS.keys()))
-
-# Tomamos la paleta elegida
-paleta = PALETAS[paleta_nombre]
-
-# Según modo, seleccionamos colores para fondo y texto
-fondo = paleta["fondo_claro"] if modo == "Claro" else paleta["fondo_oscuro"]
-texto = paleta["texto_claro"] if modo == "Claro" else paleta["texto_oscuro"]
-
 
 # Estilos layout Plotly
 def layout_template(title):
@@ -306,32 +270,23 @@ with st.sidebar:
 # Sección colapsable "Sobre el modelo"
 with st.expander("📖 Sobre el modelo"):
     st.markdown("""
-    ### Metodología del modelo econométrico
+    **Metodología del modelo econométrico:**
 
-    **Tipo de regresión:** Regresión lineal múltiple con variables macroeconómicas.
+    - **Tipo de regresión:** Regresión lineal múltiple con variables macroeconómicas.
+    - **Variables incluidas:** IPC, Reservas Internacionales, BADLAR, Riesgo País, MEP.
+    - **Supuestos clave:**
+      - Linealidad entre variables y precio USD blue.
+      - Variables macroeconómicas consideradas exógenas.
+      - Independencia y homocedasticidad de residuos.
+      - Modelo one-month-ahead (predicción a un mes).
 
-    **Variables incluidas:** IPC, Reservas Internacionales, M2, BADLAR, Riesgo País, MEP.
-
-    **Supuestos y validación estadística:**
-    - Se verificó la linealidad entre las variables y el precio del USD blue.
-    - Las variables macroeconómicas se consideraron exógenas al modelo.
-    - Se realizaron tests estadísticos para validar independencia y homocedasticidad de residuos, incluyendo:
-      - Test de White (heterocedasticidad),
-      - Test de Durbin-Watson (autocorrelación),
-      - Test Breusch-Pagan (heterocedasticidad),
-      - Otros análisis complementarios.
-    - Los resultados de estos tests confirmaron que los supuestos clásicos del modelo se cumplen adecuadamente.
-
-    **Modelo one-month-ahead:** El modelo genera predicciones a un mes, considerando que las variables macroeconómicas permanecen constantes para predicciones a más largo plazo.
-
-    El modelo se ajusta con datos históricos mensuales y se valida con métricas de error como MAE y RMSE.
-
-    Las predicciones de largo plazo asumen estabilidad en las variables macro.
+    El modelo se ajusta con datos históricos mensuales, y se valida con métricas de error  
+    como MAE y RMSE. Las predicciones de largo plazo asumen estabilidad en las variables macro.
     """)
 
 # Footer
 st.markdown("---")
-st.markdown("© 2025 Santiago Wickham | Estudiante de Lic. en Economía y Finanzas  | Proyecto económico - Datos: Fuentes oficiales")
+st.markdown("© 2025 Santiago Wickham | Proyecto económico - Datos: Fuentes oficiales y Google Sheets")
 st.markdown(""" 
 
 🔗 [LinkedIn](https://www.linkedin.com/in/santiagowickham/)  
