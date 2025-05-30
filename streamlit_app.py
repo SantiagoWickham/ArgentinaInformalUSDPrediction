@@ -68,18 +68,54 @@ with st.sidebar:
 data = {hoja: cargar_hoja(SHEET_ID, hoja) for hoja in HOJAS}
 df = data[hoja_sel]
 
-# Paleta accesible WCAG AA/AAA (azul-verde)
-COLOR_PALETA = {
-    "real": "#004165",
-    "predicho_cp": "#2a9d8f",
-    "predicho_lp": "#a3d2ca",
-    "intervalo_confianza": "rgba(163, 210, 202, 0.3)",
-    "error": "#e76f51",
-    "fondo_claro": "#f9f9f9",
-    "fondo_oscuro": "#1e1e1e",
-    "texto_claro": "#000000",
-    "texto_oscuro": "#f0f0f0"
+# Definimos las paletas accesibles con modo claro/oscuro
+PALETAS = {
+    "Finanzas": {
+        "real": "#004165",
+        "predicho_cp": "#2a9d8f",
+        "predicho_lp": "#a3d2ca",
+        "intervalo_confianza": "rgba(163, 210, 202, 0.3)",
+        "error": "#e76f51",
+        "fondo_claro": "#f9f9f9",
+        "fondo_oscuro": "#1e1e1e",
+        "texto_claro": "#000000",
+        "texto_oscuro": "#f0f0f0"
+    },
+    "Macro": {
+        "real": "#1b4332",
+        "predicho_cp": "#40916c",
+        "predicho_lp": "#74c69d",
+        "intervalo_confianza": "rgba(116, 198, 157, 0.3)",
+        "error": "#d00000",
+        "fondo_claro": "#e9f5db",
+        "fondo_oscuro": "#0b3d0b",
+        "texto_claro": "#000000",
+        "texto_oscuro": "#e9f5db"
+    },
+    "Dinámico": {
+        "real": "#003049",
+        "predicho_cp": "#d62828",
+        "predicho_lp": "#f77f00",
+        "intervalo_confianza": "rgba(247, 127, 0, 0.3)",
+        "error": "#fcbf49",
+        "fondo_claro": "#fafafa",
+        "fondo_oscuro": "#222222",
+        "texto_claro": "#000000",
+        "texto_oscuro": "#fafafa"
+    }
 }
+
+# Sidebar para modo claro/oscuro y elección de paleta
+modo = st.sidebar.radio("Modo de visualización", options=["Claro", "Oscuro"])
+paleta_nombre = st.sidebar.selectbox("Seleccioná paleta de colores", options=list(PALETAS.keys()))
+
+# Tomamos la paleta elegida
+paleta = PALETAS[paleta_nombre]
+
+# Según modo, seleccionamos colores para fondo y texto
+fondo = paleta["fondo_claro"] if modo == "Claro" else paleta["fondo_oscuro"]
+texto = paleta["texto_claro"] if modo == "Claro" else paleta["texto_oscuro"]
+
 
 # Estilos layout Plotly
 def layout_template(title):
