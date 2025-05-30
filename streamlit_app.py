@@ -47,6 +47,20 @@ with st.sidebar:
     hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", hojas)
     st.markdown("---")
     st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X)")
+    # BOTÓN DE DESCARGA DE CSV
+    st.download_button(
+    label="⬇️ Descargar datos en CSV",
+    data=df.to_csv(index=False).encode("utf-8"),
+    file_name=f"{hoja_sel}.csv",
+    mime="text/csv")
+    # BOTÓN PARA DESCARGAR GRÁFICO PNG
+    buf = io.BytesIO()
+    fig.write_image(buf, format="png")
+    st.download_button(
+        label="🖼️ Descargar gráfico en PNG",
+        data=buf.getvalue(),
+        file_name=f"grafico_{hoja_sel}.png",
+        mime="image/png")
 
 # Cargar hojas
 data = {hoja: cargar_hoja(sheet_id, hoja) for hoja in hojas}
