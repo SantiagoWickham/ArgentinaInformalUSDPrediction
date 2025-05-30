@@ -57,14 +57,40 @@ if hoja_sel == "Datos Originales":
     plt.xticks(rotation=45)
 elif hoja_sel == "Prediccion_CP":
     # Últimos 6 meses de datos reales + predicción CP con IC
-    df_hist = data["Datos Originales"]
-    fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
-    df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
+    # Datos base
+    ultimo_real_fecha = df_hist_cp['MES'].max()
+    ultimo_real_valor = df_hist_cp.loc[df_hist_cp['MES'] == ultimo_real_fecha, 'USD_VENTA'].values[0]
+
+    primera_pred_fecha = df['Mes'].min()
+    ic_bajo_1 = df.loc[df['Mes'] == primera_pred_fecha, 'IC_Bajo_CP'].values[0]
+    ic_alto_1 = df.loc[df['Mes'] == primera_pred_fecha, 'IC_Alto_CP'].values[0]
+    pred_medio_1 = df.loc[df['Mes'] == primera_pred_fecha, 'USD_Predicho_CP'].values[0]
+
+    # Crear vectores para fill_between desde mes 0 a mes 1
+    fechas_interp = [ultimo_real_fecha, primera_pred_fecha]
+
+    # En mes 0, IC bajo y alto = valor real (sin incertidumbre)
+    ic_bajo_interp = [ultimo_real_valor, ic_bajo_1]
+    ic_alto_interp = [ultimo_real_valor, ic_alto_1]
+
+    # Para que fill_between funcione, necesitamos fechas como números
+    fechas_num = mdates.date2num(fechas_interp)
     
-    ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
+    # Graficar el área triangular de IC "abriéndose" desde mes 0 a mes 1
+    ax.fill_between(fechas_num, ic_bajo_interp, ic_alto_interp, color='#2f7c5e', alpha=0.25)
+
+    # Ahora graficar el resto del IC (mes 1 en adelante) como ya lo haces
+    # Tomá solo desde mes 1 en adelante para no sobreponer esta zona inicial
+    fechas_restantes = mdates.date2num(df['Mes'])
+    ax.fill_between(fechas_restantes, df['IC_Bajo_CP'], df['IC_Alto_CP'], color='#2f7c5e', alpha=0.25)
+
+    # También la línea de la predicción media
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
-    ax.fill_between(df['Mes'], df['IC_Bajo_CP'], df['IC_Alto_CP'], color='#2f7c5e', alpha=0.25, label='IC 95%')
-    
+
+    # Línea de los datos reales últimos 6 meses como ya tenías
+    ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
+
+    # Ajustes de gráfico (títulos, ejes, leyenda, etc) como los tenías
     ax.set_title("Predicción Corto Plazo (últimos 6 meses reales + predicción)")
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Precio USD Blue (ARS)")
@@ -73,7 +99,7 @@ elif hoja_sel == "Prediccion_CP":
     ax.xaxis.set_major_locator(mdates.MonthLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.xticks(rotation=45)
-    
+
 elif hoja_sel == "Prediccion_LP":
     # Mostrar datos desde 2020 + predicción LP con IC
     df_hist = data["Datos Originales"]
