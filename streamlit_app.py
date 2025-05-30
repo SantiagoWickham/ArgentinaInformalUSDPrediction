@@ -88,7 +88,7 @@ elif hoja_sel == "Prediccion_CP":
     fecha_junio = pd.Timestamp('2025-06-30 00:00:00')
     # Filtrar fila para junio
     fila_junio = df[df['Mes'] == fecha_junio]
-    if not fila_junio.empty:
+if not fila_junio.empty:
     valor_junio = fila_junio['USD_Predicho_CP'].values[0]
     ax.annotate(f'Junio: {valor_junio:.2f}', 
                 xy=(fecha_junio, valor_junio),            # Punto a marcar
