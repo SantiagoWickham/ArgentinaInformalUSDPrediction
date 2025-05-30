@@ -57,6 +57,8 @@ if hoja_sel == "Datos Originales":
     plt.xticks(rotation=45)
 
 elif hoja_sel == "Prediccion_CP":
+    fig, ax = plt.subplots(figsize=(10, 6))
+
     # Últimos 6 meses de datos reales
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
@@ -68,39 +70,24 @@ elif hoja_sel == "Prediccion_CP":
     fila_primera = df[df['Mes'] == fecha_primera_pred].iloc[0]
 
     # Valores para la primera predicción
-    fila_primera = df[df['Mes'] == fecha_primera_pred].iloc[0]
     pred = fila_primera['USD_Predicho_CP']
     ic_bajo = fila_primera['IC_Bajo_CP']
     ic_alto = fila_primera['IC_Alto_CP']
 
-   # Interpolación: N puntos entre última fecha real y primera predicción
+    # Interpolación
     n_puntos = 10
     fechas_interp = pd.date_range(start=fecha_ultimo_real, end=fecha_primera_pred, periods=n_puntos)
-
-    # Límites del intervalo de confianza interpolado: se abren desde el punto central
     valores_bajo_interp = np.linspace(pred, ic_bajo, n_puntos)
     valores_alto_interp = np.linspace(pred, ic_alto, n_puntos)
 
-    # Relleno triangular entre el último punto real y el primer punto de predicción
-    ax.fill_between(fechas_interp, valores_bajo_interp, valores_alto_interp, color='#2f7c5e', alpha=0.25)
-
-    # Relleno normal a partir del segundo mes en adelante
-    df_resto = df[df['Mes'] > fecha_primera_pred]
-    ax.fill_between(df_resto['Mes'], df_resto['IC_Bajo_CP'], df_resto['IC_Alto_CP'], color='#2f7c5e', alpha=0.25, label='IC 95%')
-
     # Gráfico
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Línea de valores reales
     ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
-
-    # Línea de predicción
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
 
-    # Triángulo del intervalo de confianza inicial (relleno)
+    # Relleno inicial interpolado
     ax.fill_between(fechas_interp, valores_bajo_interp, valores_alto_interp, color='#2f7c5e', alpha=0.25)
 
-    # Resto del IC (desde segundo punto en adelante)
+    # Resto del intervalo de confianza
     df_resto = df[df['Mes'] > fecha_primera_pred]
     ax.fill_between(df_resto['Mes'], df_resto['IC_Bajo_CP'], df_resto['IC_Alto_CP'], color='#2f7c5e', alpha=0.25, label='IC 95%')
 
@@ -114,7 +101,9 @@ elif hoja_sel == "Prediccion_CP":
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.show()
+
+    # Mostrar figura
+    st.pyplot(fig)
 
 elif hoja_sel == "Prediccion_LP":
     # Mostrar datos desde 2020 + predicción LP con IC
