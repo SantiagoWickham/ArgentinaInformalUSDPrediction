@@ -2,13 +2,15 @@ import streamlit as st
 import pandas as pd
 import urllib.parse
 import plotly.graph_objs as go
+from io import StringIO
 
-# Configuración de página
+# --- Configuración general ---
 st.set_page_config(
     page_title="Modelo USD Blue | Análisis Económico",
     layout="wide",
     page_icon="📈"
 )
+
 st.title("📈 Visualización del Modelo Econométrico del USD Blue")
 
 st.markdown("""
@@ -21,11 +23,11 @@ considerando que estas se mantienen constantes.
 ---
 """)
 
-# ID Google Sheets
+# --- Constantes ---
 SHEET_ID = "1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X"
 HOJAS = ["Datos Originales", "Prediccion_CP", "Prediccion_LP", "Real vs Predicho"]
 
-# Función para cargar hojas desde Google Sheets
+# --- Función para cargar hoja de Google Sheets ---
 @st.cache_data(show_spinner=True)
 def cargar_hoja(sheet_id, sheet_name):
     sheet_name_encoded = urllib.parse.quote(sheet_name)
@@ -42,7 +44,7 @@ def cargar_hoja(sheet_id, sheet_name):
         df = df.sort_values('Fecha')
     return df
 
-# Sidebar configuración
+# --- Sidebar ---
 with st.sidebar:
     st.image("https://raw.githubusercontent.com/SantiagoWickham/ArgentinaInformalUSDPrediction/main/logo.jpg", width=100)
     st.header("⚙️ Configuración")
@@ -54,11 +56,11 @@ with st.sidebar:
     if hoja_sel == "Real vs Predicho":
         mostrar_residuos = st.checkbox("Mostrar errores de predicción (residuos)", value=False)
 
-# Cargar datos
+# --- Cargar datos ---
 data = {hoja: cargar_hoja(SHEET_ID, hoja) for hoja in HOJAS}
 df = data[hoja_sel]
 
-# Paletas colores modo claro y oscuro
+# --- Paletas de colores ---
 PALETA_CLARA = {
     "real": "#004165",
     "predicho_cp": "#2a9d8f",
@@ -125,6 +127,7 @@ def layout_template(title):
         hovermode='x unified'
     )
 
+# --- Construcción figura ---
 fig = go.Figure()
 
 if hoja_sel == "Datos Originales":
@@ -221,26 +224,58 @@ elif hoja_sel == "Real vs Predicho":
     ))
     fig.add_trace(go.Scatter(
         x=df['Fecha'],
-        y=df['Predicho'],
+        y=df['Prediccion'],
         mode='lines+markers',
-        name='USD Predicho',
+        name='Predicción',
         line=dict(color=COLOR_PALETA["predicho_cp"], width=3, dash='dash'),
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
     ))
+
     if mostrar_residuos:
-        fig.add_trace(go.Bar(
+        residuos = df['Real'] - df['Prediccion']
+        fig.add_trace(go.Scatter(
             x=df['Fecha'],
-            y=df['Error'],
-            name='Error (Real - Predicho)',
-            marker_color=COLOR_PALETA["error"],
-            opacity=0.6,
+            y=residuos,
+            mode='lines+markers',
+            name='Error (Residuo)',
+            line=dict(color=COLOR_PALETA["error"], width=2),
+            marker=dict(size=5),
+            yaxis='y2',
             hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
         ))
-    fig.update_layout(layout_template("Comparación Real vs Predicción"))
 
+        # Añadir segundo eje Y para residuos
+        fig.update_layout(
+            yaxis2=dict(
+                title='Error',
+                overlaying='y',
+                side='right',
+                showgrid=False,
+                tickfont=dict(color=COLOR_PALETA["error"]),
+                titlefont=dict(color=COLOR_PALETA["error"])
+            )
+        )
+    fig.update_layout(layout_template("Real vs Predicción"))
+
+# --- Mostrar gráfico ---
 st.plotly_chart(fig, use_container_width=True)
 
+# --- Botón para descargar los datos de la hoja seleccionada ---
+def convertir_csv(df):
+    return df.to_csv(index=False).encode('utf-8')
+
+csv_data = convertir_csv(df)
+
+st.download_button(
+    label="⬇️ Descargar datos actuales en CSV",
+    data=csv_data,
+    file_name=f"datos_{hoja_sel.replace(' ', '_').lower()}.csv",
+    mime='text/csv'
+)
+
+# --- Sección Acerca de ---
+st.markdown("---")
 # Sección colapsable "Sobre el modelo"
 with st.expander("📖 Sobre el modelo"):
     st.markdown("""
