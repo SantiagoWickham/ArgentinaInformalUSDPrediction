@@ -56,58 +56,43 @@ if hoja_sel == "Datos Originales":
     plt.xticks(rotation=45)
 
 elif hoja_sel == "Prediccion_CP":
-    # Últimos 6 meses de datos reales + predicción CP con IC
+    # Últimos 6 meses de datos reales
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
 
-    # Fechas importantes
+    # Fechas clave
     fecha_ultimo_real = df_hist_cp['MES'].max()
     fecha_primera_pred = df['Mes'].min()
 
-    # Índice de la primera predicción
-    pred_inicio = df['Mes'] >= fecha_primera_pred
-    pred_restante = df['Mes'] > fecha_primera_pred
+    # Valores para la primera predicción
+    fila_primera = df[df['Mes'] == fecha_primera_pred].iloc[0]
+    pred_central = fila_primera['USD_Predicho_CP']
+    ic_bajo = fila_primera['IC_Bajo_CP']
+    ic_alto = fila_primera['IC_Alto_CP']
 
-    # Calcular apertura triangular desde el último real hasta la primera predicción
-    interp_dates = [fecha_ultimo_real, fecha_primera_pred]
-    interp_pred = np.interp(
-        mdates.date2num(interp_dates),
-        mdates.date2num([fecha_ultimo_real, fecha_primera_pred]),
-        df[df['Mes'] == fecha_primera_pred]['USD_Predicho_CP'].values
-    )
+    # Generar puntos intermedios para efecto "triángulo"
+    fechas_triangulo = pd.to_datetime([fecha_ultimo_real, fecha_primera_pred])
+    valores_bajo = [pred_central, ic_bajo]
+    valores_alto = [pred_central, ic_alto]
 
-    interp_low = np.interp(
-        mdates.date2num(interp_dates),
-        mdates.date2num([fecha_ultimo_real, fecha_primera_pred]),
-        df[df['Mes'] == fecha_primera_pred]['IC_Bajo_CP'].values
-    )
-
-    interp_high = np.interp(
-        mdates.date2num(interp_dates),
-        mdates.date2num([fecha_ultimo_real, fecha_primera_pred]),
-        df[df['Mes'] == fecha_primera_pred]['IC_Alto_CP'].values
-    )
-
-    # Plot
+    # Gráfico
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Real
+    # Línea de valores reales
     ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
 
-    # Predicción
+    # Línea de predicción
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
 
-    # Relleno triangular (interpolado)
-    ax.fill_between(interp_dates, interp_low, interp_high, color='#2f7c5e', alpha=0.25)
+    # Triángulo del intervalo de confianza inicial (relleno)
+    ax.fill_between(fechas_triangulo, valores_bajo, valores_alto, color='#2f7c5e', alpha=0.25)
 
-    # Relleno regular (IC completo desde 2da fecha en adelante)
-    ax.fill_between(df.loc[pred_restante, 'Mes'],
-                df.loc[pred_restante, 'IC_Bajo_CP'],
-                df.loc[pred_restante, 'IC_Alto_CP'],
-                color='#2f7c5e', alpha=0.25, label='IC 95%')
+    # Resto del IC (desde segundo punto en adelante)
+    df_resto = df[df['Mes'] > fecha_primera_pred]
+    ax.fill_between(df_resto['Mes'], df_resto['IC_Bajo_CP'], df_resto['IC_Alto_CP'], color='#2f7c5e', alpha=0.25, label='IC 95%')
 
-    # Gráfica
+    # Estética
     ax.set_title("Predicción Corto Plazo (últimos 6 meses reales + predicción)")
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Precio USD Blue (ARS)")
