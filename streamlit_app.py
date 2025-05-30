@@ -45,7 +45,7 @@ def cargar_hoja(sheet_id, sheet_name):
 
 # Sidebar
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Flag_of_Argentina.svg/800px-Flag_of_Argentina.svg.png", width=100)
+    st.image("https://raw.githubusercontent.com/SantiagoWickham/ArgentinaInformalUSDPrediction/refs/heads/main/logo.jpg", width=100)
     st.header("⚙️ Configuración")
     hojas = ["Datos Originales", "Prediccion_CP", "Prediccion_LP", "Real vs Predicho"]
     hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", hojas)
