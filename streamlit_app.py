@@ -93,7 +93,7 @@ elif hoja_sel == "Prediccion_CP":
         arrowprops=dict(facecolor='green', arrowstyle='->'),
         fontsize=12,
         ha='center',
-        color='a3d9a5'
+        color='#a3d9a5'
     )
 
 elif hoja_sel == "Prediccion_LP":
@@ -117,7 +117,7 @@ elif hoja_sel == "Prediccion_LP":
         arrowprops=dict(facecolor='a3d9a5', arrowstyle='->'),
         fontsize=12,
         ha='center',
-        color='a3d9a5'
+        color='#a3d9a5'
     )
 
 elif hoja_sel == "Real vs Predicho":
