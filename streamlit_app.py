@@ -79,8 +79,8 @@ elif hoja_sel == "Prediccion_CP":
     # Línea predicción
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
 
-    # Relleno triangular (manual)
-    fechas_triangulo = [fecha_real, fecha_pred]
+    # --- Solución del triángulo: rellenar manualmente entre dos fechas convertidas a número
+    fechas_triangulo = [mdates.date2num(fecha_real), mdates.date2num(fecha_pred)]
     bajo_triangulo = [valor_real, ic_bajo]
     alto_triangulo = [valor_real, ic_alto]
 
@@ -105,7 +105,6 @@ elif hoja_sel == "Prediccion_CP":
     plt.tight_layout()
 
     st.pyplot(fig)
-
 elif hoja_sel == "Prediccion_LP":
     # Mostrar datos desde 2020 + predicción LP con IC
     df_hist = data["Datos Originales"]
