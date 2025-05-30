@@ -1,36 +1,36 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+import urllib.parse
+import io
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
-import urllib.parse
-import numpy as np
-import io
+import plotly.graph_objects as go
 
-# Configuración de página
+# CONFIGURACIÓN INICIAL
 st.set_page_config(page_title="Modelo USD Blue | Análisis Económico", layout="wide", page_icon="📈")
-st.title("📈 Visualización del Modelo Econométrico del USD Blue")
 
-# Descripción introductoria
+# TÍTULO Y DESCRIPCIÓN
+st.title("📈 Visualización del Modelo Econométrico del USD Blue")
 st.markdown("""
 Este dashboard interactivo permite visualizar el comportamiento histórico del dólar blue en Argentina, 
 así como las proyecciones de corto y largo plazo generadas mediante un modelo econométrico.  
-
-🧠 Este es un modelo *one month ahead* (predicción a un mes), por lo que las proyecciones para períodos t+2 en adelante se realizan bajo el supuesto *ceteris paribus* en las variables macroeconómicas, es decir, considerando que estas se mantienen constantes.
-
+Este es un modelo one month ahead (predicción a un mes), por lo que las proyecciones para períodos t+2
+en adelante se realizan bajo el supuesto *ceteris paribus*, considerando las variables macroeconómicas constantes.
 ---
 """)
 
-# ID de Google Sheets
+# ID de la Google Sheet
 sheet_id = "1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X"
 
-# Función para cargar hojas
-@st.cache_data(show_spinner=True)
+# FUNCIÓN DE CARGA DE DATOS
+@st.cache_data(ttl=600)
 def cargar_hoja(sheet_id, sheet_name):
     sheet_name_encoded = urllib.parse.quote(sheet_name)
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_encoded}"
     df = pd.read_csv(url)
-    
+
     if sheet_name == "Datos Originales":
         df['MES'] = pd.to_datetime(df['MES'], errors='coerce')
         df = df.sort_values('MES')
@@ -42,130 +42,90 @@ def cargar_hoja(sheet_id, sheet_name):
         df = df.sort_values('Fecha')
     return df
 
-# Sidebar
+# SIDEBAR
 with st.sidebar:
     st.image("https://raw.githubusercontent.com/SantiagoWickham/ArgentinaInformalUSDPrediction/main/logo.jpg", width=100)
     st.header("⚙️ Configuración")
-    hojas = ["Datos Originales", "Prediccion_CP", "Prediccion_LP", "Real vs Predicho"]
-    hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", hojas)
+    hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", ["Datos Originales", "Prediccion_CP", "Prediccion_LP", "Real vs Predicho"])
+    actualizar = st.slider("⏱️ Refrescar cada X segundos", min_value=0, max_value=300, step=10, value=0)
     st.markdown("---")
     st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X)")
 
-# Carga de datos
-data = {hoja: cargar_hoja(sheet_id, hoja) for hoja in hojas}
+# AUTO-REFRESH
+if actualizar > 0:
+    st.experimental_rerun()
+
+# CARGA DE DATOS
+data = {hoja: cargar_hoja(sheet_id, hoja) for hoja in ["Datos Originales", "Prediccion_CP", "Prediccion_LP", "Real vs Predicho"]}
 df = data[hoja_sel]
 
-# Estilo visual
-sns.set_style("whitegrid")
-fig, ax = plt.subplots(figsize=(14, 6))
-
-# Visualización según la hoja seleccionada
+# MODO GRÁFICO PLOTLY (INTERACTIVO CON TOOLTIPS)
 if hoja_sel == "Datos Originales":
     df_hist = df[df['MES'] >= '2020-01-01']
-    ax.plot(df_hist['MES'], df_hist['USD_VENTA'], label='USD Blue', color='#003f5c', linewidth=2)
-    ax.set_title("USD Blue Histórico (desde 2020)", fontsize=16)
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Precio en ARS")
-    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.xticks(rotation=45)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df_hist['MES'], y=df_hist['USD_VENTA'],
+                             mode='lines+markers',
+                             name='USD Blue',
+                             line=dict(color='#003f5c')))
+    fig.update_layout(title="USD Blue histórico (desde 2020)",
+                      xaxis_title="Fecha",
+                      yaxis_title="Precio (ARS)",
+                      template="plotly_dark" if st.get_option("theme.base") == "dark" else "plotly_white")
 
 elif hoja_sel == "Prediccion_CP":
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
 
-    ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
-    ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
-    ax.fill_between(df['Mes'], df['IC_Bajo_CP'], df['IC_Alto_CP'], color='#bde7b7', alpha=0.3, label='IC 95%')
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df_hist_cp['MES'], y=df_hist_cp['USD_VENTA'], mode='lines', name="USD Real", line=dict(color='#2f4b7c')))
+    fig.add_trace(go.Scatter(x=df['Mes'], y=df['USD_Predicho_CP'], mode='lines+markers', name="Predicción CP", line=dict(color='#2f7c5e', dash="dash")))
+    fig.add_trace(go.Scatter(x=df['Mes'], y=df['IC_Bajo_CP'], name='IC Inferior', line=dict(color='rgba(0,0,0,0)'), showlegend=False))
+    fig.add_trace(go.Scatter(x=df['Mes'], y=df['IC_Alto_CP'], name='IC Superior', fill='tonexty', fillcolor='rgba(189,231,183,0.3)', line=dict(color='rgba(0,0,0,0)'), showlegend=True))
 
-    ax.set_title("Predicción a Corto Plazo", fontsize=16)
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Precio en ARS")
-    ax.xaxis.set_major_locator(mdates.MonthLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.xticks(rotation=45)
-
-    primer_pred_cp = df[df['Delta_CP'] != 0].iloc[0]
-    ax.annotate(
-        f'1er Predicho CP:\n{primer_pred_cp["USD_Predicho_CP"]:.2f} ARS\n{primer_pred_cp["Mes"].strftime("%Y-%m-%d")}',
-        xy=(primer_pred_cp['Mes'], primer_pred_cp['USD_Predicho_CP']),
-        xytext=(primer_pred_cp['Mes'], primer_pred_cp['USD_Predicho_CP'] + 40),
-        arrowprops=dict(facecolor='#a3d9a5', arrowstyle='->'),
-        fontsize=12,
-        ha='center',
-        color='#2f7c5e'
-    )
+    fig.update_layout(title="Predicción a Corto Plazo", xaxis_title="Fecha", yaxis_title="Precio (ARS)",
+                      template="plotly_dark" if st.get_option("theme.base") == "dark" else "plotly_white")
 
 elif hoja_sel == "Prediccion_LP":
     df_hist = data["Datos Originales"]
     df_hist_lp = df_hist[df_hist['MES'] >= '2020-01-01']
 
-    ax.plot(df_hist_lp['MES'], df_hist_lp['USD_VENTA'], label='USD Real', color='#003f5c', linewidth=2)
-    ax.plot(df['Mes'], df['USD_Predicho_LP'], label='Predicción LP', color='#7bcf6f', linewidth=2, linestyle='--')
-    ax.fill_between(df['Mes'], df['IC_Bajo_LP'], df['IC_Alto_LP'], color='#bde7b7', alpha=0.3, label='IC 95%')
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df_hist_lp['MES'], y=df_hist_lp['USD_VENTA'], mode='lines', name="USD Real", line=dict(color='#003f5c')))
+    fig.add_trace(go.Scatter(x=df['Mes'], y=df['USD_Predicho_LP'], mode='lines+markers', name="Predicción LP", line=dict(color='#7bcf6f', dash='dash')))
+    fig.add_trace(go.Scatter(x=df['Mes'], y=df['IC_Bajo_LP'], name='IC Inferior', line=dict(color='rgba(0,0,0,0)'), showlegend=False))
+    fig.add_trace(go.Scatter(x=df['Mes'], y=df['IC_Alto_LP'], name='IC Superior', fill='tonexty', fillcolor='rgba(189,231,183,0.3)', line=dict(color='rgba(0,0,0,0)'), showlegend=True))
 
-    ax.set_title("Predicción a Largo Plazo", fontsize=16)
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Precio en ARS")
-    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.xticks(rotation=45)
-
-    primer_pred_lp = df[df['Delta_LP'] != 0].iloc[0]
-    ax.annotate(
-        f'1er Predicho LP:\n{primer_pred_lp["USD_Predicho_LP"]:.2f} ARS\n{primer_pred_lp["Mes"].strftime("%Y-%m-%d")}',
-        xy=(primer_pred_lp['Mes'], primer_pred_lp['USD_Predicho_LP']),
-        xytext=(primer_pred_lp['Mes'], primer_pred_lp['USD_Predicho_LP'] - 300),
-        arrowprops=dict(facecolor='#7bcf6f', arrowstyle='->'),
-        fontsize=12,
-        ha='center',
-        color='#2f7c5e'
-    )
+    fig.update_layout(title="Predicción a Largo Plazo", xaxis_title="Fecha", yaxis_title="Precio (ARS)",
+                      template="plotly_dark" if st.get_option("theme.base") == "dark" else "plotly_white")
 
 elif hoja_sel == "Real vs Predicho":
-    ax.plot(df['Fecha'], df['USD_Real'], label='USD Real', color='black', linewidth=2)
-    ax.plot(df['Fecha'], df['USD_Predicho'], label='USD Predicho', color='red', linewidth=2, linestyle='--')
-    ax.set_title("Comparación: Real vs Predicho", fontsize=16)
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Precio en ARS")
-    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
-    plt.xticks(rotation=45)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df['Fecha'], y=df['USD_Real'], mode='lines+markers', name="USD Real", line=dict(color='black')))
+    fig.add_trace(go.Scatter(x=df['Fecha'], y=df['USD_Predicho'], mode='lines+markers', name="USD Predicho", line=dict(color='red', dash='dash')))
 
-    fecha_junio = pd.Timestamp('2025-06-30')
-    if 'Mes' in df.columns:
-        fila_junio = df[df['Mes'] == fecha_junio]
-        if not fila_junio.empty:
-            valor_junio = fila_junio['USD_Predicho_LP'].values[0]
-            ax.annotate(f'Junio 2025: {valor_junio:.2f} ARS',
-                        xy=(fecha_junio, valor_junio),
-                        xytext=(fecha_junio, valor_junio + 30),
-                        arrowprops=dict(facecolor='black', arrowstyle='->'),
-                        fontsize=12,
-                        ha='center')
+    fig.update_layout(title="Comparación: Real vs Predicho",
+                      xaxis_title="Fecha", yaxis_title="Precio (ARS)",
+                      template="plotly_dark" if st.get_option("theme.base") == "dark" else "plotly_white")
 
-# Ajustes generales
-ax.legend()
-ax.grid(True, linestyle='--', alpha=0.5)
-sns.despine()
-st.pyplot(fig)
+# RENDER GRÁFICO
+st.plotly_chart(fig, use_container_width=True)
 
-# Botones de descarga
+# DESCARGAS CSV + PNG
 csv_buffer = df.to_csv(index=False).encode("utf-8")
 img_buffer = io.BytesIO()
-fig.savefig(img_buffer, format="png", bbox_inches='tight')
+fig.write_image(img_buffer, format="png")
 img_buffer.seek(0)
 
 with st.sidebar:
     st.download_button("⬇️ Descargar CSV", data=csv_buffer, file_name=f"{hoja_sel}.csv", mime="text/csv")
     st.download_button("🖼️ Descargar gráfico PNG", data=img_buffer, file_name=f"grafico_{hoja_sel}.png", mime="image/png")
 
-# Footer
+# FOOTER
 st.markdown("---")
 st.markdown("""
-#### 📍 Desarrollado por: Santiago Wickham  
-Estudiante de Licenciatura en Economía y Finanzas | UADE Business School
+📍 **Desarrollado por:** Santiago Wickham  
+Estudiante de Lic. en Economía y Finanzas  
 
 🔗 [LinkedIn](https://www.linkedin.com/in/santiagowickham/)  
 🐙 [GitHub](https://github.com/SantiagoWickham)
