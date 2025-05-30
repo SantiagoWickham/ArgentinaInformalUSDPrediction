@@ -269,29 +269,29 @@ with st.sidebar:
 
 # Sección colapsable "Sobre el modelo"
 with st.expander("📖 Sobre el modelo"):
-st.markdown("""
-### Metodología del modelo econométrico
+    st.markdown("""
+    ### Metodología del modelo econométrico
 
-**Tipo de regresión:** Regresión lineal múltiple con variables macroeconómicas.
+    **Tipo de regresión:** Regresión lineal múltiple con variables macroeconómicas.
 
-**Variables incluidas:** IPC, Reservas Internacionales, M2, BADLAR, Riesgo País, MEP.
+    **Variables incluidas:** IPC, Reservas Internacionales, M2, BADLAR, Riesgo País, MEP.
 
-**Supuestos y validación estadística:**
-- Se verificó la linealidad entre las variables y el precio del USD blue.
-- Las variables macroeconómicas se consideraron exógenas al modelo.
-- Se realizaron tests estadísticos para validar independencia y homocedasticidad de residuos, incluyendo:
-  - Test de White (heterocedasticidad),
-  - Test de Durbin-Watson (autocorrelación),
-  - Test Breusch-Pagan (heterocedasticidad),
-  - Otros análisis complementarios.
-- Los resultados de estos tests confirmaron que los supuestos clásicos del modelo se cumplen adecuadamente.
+    **Supuestos y validación estadística:**
+    - Se verificó la linealidad entre las variables y el precio del USD blue.
+    - Las variables macroeconómicas se consideraron exógenas al modelo.
+    - Se realizaron tests estadísticos para validar independencia y homocedasticidad de residuos, incluyendo:
+      - Test de White (heterocedasticidad),
+      - Test de Durbin-Watson (autocorrelación),
+      - Test Breusch-Pagan (heterocedasticidad),
+      - Otros análisis complementarios.
+    - Los resultados de estos tests confirmaron que los supuestos clásicos del modelo se cumplen adecuadamente.
 
-**Modelo one-month-ahead:** El modelo genera predicciones a un mes, considerando que las variables macroeconómicas permanecen constantes para predicciones a más largo plazo.
+    **Modelo one-month-ahead:** El modelo genera predicciones a un mes, considerando que las variables macroeconómicas permanecen constantes para predicciones a más largo plazo.
 
-El modelo se ajusta con datos históricos mensuales y se valida con métricas de error como MAE y RMSE.
+    El modelo se ajusta con datos históricos mensuales y se valida con métricas de error como MAE y RMSE.
 
-Las predicciones de largo plazo asumen estabilidad en las variables macro.
-""")
+    Las predicciones de largo plazo asumen estabilidad en las variables macro.
+    """)
 
 # Footer
 st.markdown("---")
