@@ -22,7 +22,7 @@ plt.rcParams['axes.prop_cycle'] = plt.cycler(color=financial_palette)
 
 @st.cache_data(show_spinner=True)
 def cargar_datos(sheet_id, sheet_name):
-    url = f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRAXkmSc6If8DaPCGgDX3GfhlvInDlajIUIHAztGwZGcdTa6k3SNRq2jhKthYOnNLQAFEb6_t2XPw1Y/pub?output=csv"
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}""
     df = pd.read_csv(url)
 
     fechas = ['FECHA_USD', 'FECHA_IPC', 'FECHA_RP', 'FECHA_RESERVAS', 'FECHA_M2', 'FECHA_BADLAR', 'FECHA_TC', 'FECHA_MEP']
@@ -70,18 +70,20 @@ def cargar_datos(sheet_id, sheet_name):
 def ajustar_modelo_regresion(df):
     df = df.copy()
 
-    # Crear lags de variables
+    # Crear lags
     df['RESERVAS_lag1'] = df['RESERVAS'].shift(1)
     df['BADLAR_lag1'] = df['BADLAR'].shift(1)
 
-    df = df.dropna()
+    # Seleccionar variables para evitar dropear columnas innecesarias
+    variables = ['USD_VENTA', 'IPC', 'RESERVAS_lag1', 'BADLAR_lag1', 'RP', 'MEP']
+    df_modelo = df[variables].dropna()
 
-    X = df[['IPC', 'RESERVAS_lag1', 'BADLAR_lag1', 'RP', 'MEP']]
-    y = df['USD_VENTA']
+    X = df_modelo[['IPC', 'RESERVAS_lag1', 'BADLAR_lag1', 'RP', 'MEP']]
+    y = df_modelo['USD_VENTA']
 
     X_const = sm.add_constant(X)
 
-    split_idx = int(len(df) * 0.8)
+    split_idx = int(len(X_const) * 0.8)
     X_train, X_test = X_const.iloc[:split_idx], X_const.iloc[split_idx:]
     y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
 
