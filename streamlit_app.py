@@ -56,23 +56,51 @@ if hoja_sel == "Datos Originales":
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.xticks(rotation=45)
 elif hoja_sel == "Prediccion_CP":
-    # Últimos 6 meses de datos reales + predicción CP con IC
+    # Mostrar datos 6 meses atrás + predicción CP con IC
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
-    
+
+    fecha_ultimo_real = df_hist_cp['MES'].max()
+    fecha_primera_pred = df['Mes'].min()
+    fila_primera = df[df['Mes'] == fecha_primera_pred].iloc[0]
+
+    pred = fila_primera['USD_Predicho_CP']
+    ic_bajo = fila_primera['IC_Bajo_CP']
+    ic_alto = fila_primera['IC_Alto_CP']
+
+    # Interpolación triangular
+    fechas_interp = pd.date_range(start=fecha_ultimo_real, end=fecha_primera_pred, periods=5)
+    interp_central = np.linspace(df_hist_cp['USD_VENTA'].iloc[-1], pred, len(fechas_interp))
+    interp_bajo = np.linspace(df_hist_cp['USD_VENTA'].iloc[-1], ic_bajo, len(fechas_interp))
+    interp_alto = np.linspace(df_hist_cp['USD_VENTA'].iloc[-1], ic_alto, len(fechas_interp))
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    # Series reales y predichas
     ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
-    ax.fill_between(df['Mes'], df['IC_Bajo_CP'], df['IC_Alto_CP'], color='#2f7c5e', alpha=0.25, label='IC 95%')
-    
-    ax.set_title("Predicción Corto Plazo (últimos 6 meses reales + predicción)")
-    ax.set_xlabel("Fecha")
-    ax.set_ylabel("Precio USD Blue (ARS)")
+
+    # Relleno triangular inicial
+    ax.fill_between(fechas_interp, interp_bajo, interp_alto, color='#2f7c5e', alpha=0.25, label='IC 95% (inicio)')
+
+    # Resto del intervalo de confianza
+    df_restante = df[df['Mes'] > fecha_primera_pred]
+    ax.fill_between(df_restante['Mes'], df_restante['IC_Bajo_CP'], df_restante['IC_Alto_CP'],
+                    color='#2f7c5e', alpha=0.25)
+
+    # Estética del gráfico
+    ax.set_title("Predicción Corto Plazo: USD Blue", fontsize=16, weight='bold')
+    ax.set_xlabel("Fecha", fontsize=12)
+    ax.set_ylabel("Precio (ARS)", fontsize=12)
     ax.legend()
-    ax.grid(True, linestyle='--', alpha=0.5)
+    ax.grid(True, linestyle='--', alpha=0.6)
     ax.xaxis.set_major_locator(mdates.MonthLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    st.pyplot(fig)
 
 elif hoja_sel == "Prediccion_LP":
     # Mostrar datos desde 2020 + predicción LP con IC
