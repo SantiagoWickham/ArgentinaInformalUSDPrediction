@@ -83,10 +83,10 @@ elif hoja_sel == "Prediccion_CP":
     # Dibujar líneas que conectan punto actual con IC bajo y alto del segundo mes
     ax.plot([primer_mes_num, segundo_mes_num],
             [valor_actual, ic_bajo_segundo],
-            color='#bde7b7', linewidth=1.5)
+            color='#bde7b7', linewidth=0.5)
     ax.plot([primer_mes_num, segundo_mes_num],
             [valor_actual, ic_alto_segundo],
-            color='#bde7b7', linewidth=1.5)
+            color='#bde7b7', linewidth=0.5)
 
     # Rellenar el área triangular entre estas dos líneas para conectar visualmente IC
     ax.fill_between([primer_mes_num, segundo_mes_num],
