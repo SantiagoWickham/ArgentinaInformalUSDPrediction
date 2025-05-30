@@ -86,17 +86,17 @@ elif hoja_sel == "Prediccion_CP":
             color='#2f7c5e', linewidth=1.5)
     ax.plot([primer_mes_num, segundo_mes_num],
             [valor_actual, ic_alto_segundo],
-            color='#2f7c5e', linewidth=1.5)
+            color='#7bcf6f', linewidth=1.5)
 
     # Rellenar el área triangular entre estas dos líneas para conectar visualmente IC
     ax.fill_between([primer_mes_num, segundo_mes_num],
                     [valor_actual, ic_bajo_segundo],
                     [valor_actual, ic_alto_segundo],
-                    color='#2f7c5e', alpha=0.25)
+                    color='#7bcf6f', alpha=0.25)
 
     # Rellenar el IC desde el segundo mes en adelante (donde hay datos)
     fechas_ic_num = mdates.date2num(df['Mes'].iloc[1:])
-    ax.fill_between(fechas_ic_num, df['IC_Bajo_CP'].iloc[1:], df['IC_Alto_CP'].iloc[1:], color='#2f7c5e', alpha=0.25, label='IC 95%')
+    ax.fill_between(fechas_ic_num, df['IC_Bajo_CP'].iloc[1:], df['IC_Alto_CP'].iloc[1:], color='#7bcf6f', alpha=0.25, label='IC 95%')
 
     ax.set_title("Predicción Corto Plazo (últimos 6 meses reales + predicción)")
     ax.set_xlabel("Fecha")
