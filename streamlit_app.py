@@ -57,45 +57,46 @@ if hoja_sel == "Datos Originales":
     plt.xticks(rotation=45)
 elif hoja_sel == "Prediccion_CP":
     # Últimos 6 meses de datos reales + predicción CP con IC
+    # Últimos 6 meses de datos reales
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
 
-    # Datos para conectar último dato real con primer IC
-    ultimo_real_fecha = df_hist_cp['MES'].max()
-    ultimo_real_valor = df_hist_cp.loc[df_hist_cp['MES'] == ultimo_real_fecha, 'USD_VENTA'].values[0]
-
-    primera_pred_fecha = df['Mes'].min()
-    ic_bajo_1 = df.loc[df['Mes'] == primera_pred_fecha, 'IC_Bajo_CP'].values[0]
-    ic_alto_1 = df.loc[df['Mes'] == primera_pred_fecha, 'IC_Alto_CP'].values[0]
-
-    # Convertir fechas a números para matplotlib
-    ultimo_real_fecha_num = mdates.date2num(ultimo_real_fecha)
-    primera_pred_fecha_num = mdates.date2num(primera_pred_fecha)
-
-    # Graficar últimos datos reales
     ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
 
-    # Graficar línea predicción CP
+    # Valores del primer mes (actual)
+    primer_mes = df['Mes'].iloc[0]
+    valor_actual = df['USD_Predicho_CP'].iloc[0]
+
+    # Segundo mes (primer mes con IC)
+    segundo_mes = df['Mes'].iloc[1]
+    ic_bajo_segundo = df['IC_Bajo_CP'].iloc[1]
+    ic_alto_segundo = df['IC_Alto_CP'].iloc[1]
+
+    # Convertir a números para matplotlib
+    primer_mes_num = mdates.date2num(primer_mes)
+    segundo_mes_num = mdates.date2num(segundo_mes)
+
+    # Graficar línea de predicción incluyendo punto actual
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
 
-    # Dibujar las líneas que conectan último punto real con IC bajo y alto del primer mes predicho
-    ax.plot([ultimo_real_fecha_num, primera_pred_fecha_num],
-            [ultimo_real_valor, ic_bajo_1],
+    # Dibujar líneas que conectan punto actual con IC bajo y alto del segundo mes
+    ax.plot([primer_mes_num, segundo_mes_num],
+            [valor_actual, ic_bajo_segundo],
             color='#2f7c5e', linewidth=1.5)
-    ax.plot([ultimo_real_fecha_num, primera_pred_fecha_num],
-            [ultimo_real_valor, ic_alto_1],
+    ax.plot([primer_mes_num, segundo_mes_num],
+            [valor_actual, ic_alto_segundo],
             color='#2f7c5e', linewidth=1.5)
 
-    # Rellenar área triangular entre esas dos líneas para suavizar el inicio del IC
-    ax.fill_between([ultimo_real_fecha_num, primera_pred_fecha_num],
-                    [ultimo_real_valor, ic_bajo_1],
-                    [ultimo_real_valor, ic_alto_1],
+    # Rellenar el área triangular entre estas dos líneas para conectar visualmente IC
+    ax.fill_between([primer_mes_num, segundo_mes_num],
+                    [valor_actual, ic_bajo_segundo],
+                    [valor_actual, ic_alto_segundo],
                     color='#2f7c5e', alpha=0.25)
 
-    # Luego rellena normalmente el IC desde la predicción (mes 1 en adelante)
-    fechas_pred_num = mdates.date2num(df['Mes'])
-    ax.fill_between(fechas_pred_num, df['IC_Bajo_CP'], df['IC_Alto_CP'], color='#2f7c5e', alpha=0.25, label='IC 95%')
+    # Rellenar el IC desde el segundo mes en adelante (donde hay datos)
+    fechas_ic_num = mdates.date2num(df['Mes'].iloc[1:])
+    ax.fill_between(fechas_ic_num, df['IC_Bajo_CP'].iloc[1:], df['IC_Alto_CP'].iloc[1:], color='#2f7c5e', alpha=0.25, label='IC 95%')
 
     ax.set_title("Predicción Corto Plazo (últimos 6 meses reales + predicción)")
     ax.set_xlabel("Fecha")
