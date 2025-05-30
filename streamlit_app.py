@@ -286,4 +286,10 @@ with st.expander("📖 Sobre el modelo"):
 
 # Footer
 st.markdown("---")
-st.markdown("© 2025 Santiago Wickham | Proyecto económico - Datos: Fuentes oficiales y Google Sheets")
+st.markdown("© 2025 Santiago Wickham | Estudiante de Lic. en Economía y Finanzas  | Proyecto económico - Datos: Fuentes oficiales")
+st.markdown(""" 
+
+🔗 [LinkedIn](https://www.linkedin.com/in/santiagowickham/)  
+🐙 [GitHub](https://github.com/SantiagoWickham)
+
+""")
