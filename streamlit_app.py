@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import urllib.parse
 import plotly.graph_objs as go
-import numpy as np
 
 # Configuración de página
 st.set_page_config(
@@ -12,7 +11,6 @@ st.set_page_config(
 )
 st.title("📈 Visualización del Modelo Econométrico del USD Blue")
 
-# Descripción introductoria
 st.markdown("""
 Este dashboard interactivo permite visualizar el comportamiento histórico del dólar blue en Argentina,  
 así como las proyecciones de corto y largo plazo generadas mediante un modelo econométrico.  
@@ -27,13 +25,12 @@ considerando que estas se mantienen constantes.
 SHEET_ID = "1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X"
 HOJAS = ["Datos Originales", "Prediccion_CP", "Prediccion_LP", "Real vs Predicho"]
 
-# Función para cargar hojas
+# Función para cargar hojas desde Google Sheets
 @st.cache_data(show_spinner=True)
 def cargar_hoja(sheet_id, sheet_name):
     sheet_name_encoded = urllib.parse.quote(sheet_name)
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_encoded}"
     df = pd.read_csv(url)
-    # Formateo fechas
     if sheet_name == "Datos Originales":
         df['MES'] = pd.to_datetime(df['MES'], errors='coerce')
         df = df.sort_values('MES')
@@ -45,30 +42,23 @@ def cargar_hoja(sheet_id, sheet_name):
         df = df.sort_values('Fecha')
     return df
 
-# Sidebar
+# Sidebar configuración
 with st.sidebar:
     st.image("https://raw.githubusercontent.com/SantiagoWickham/ArgentinaInformalUSDPrediction/main/logo.jpg", width=100)
     st.header("⚙️ Configuración")
-    
-    # Selección hoja
     hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", HOJAS)
-    
-    # Modo oscuro/claro
     modo_oscuro = st.checkbox("Modo oscuro", value=False)
-    
     st.markdown("---")
     st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X)")
-
-    # Opción para mostrar errores (residuos) solo para "Real vs Predicho"
     mostrar_residuos = False
     if hoja_sel == "Real vs Predicho":
         mostrar_residuos = st.checkbox("Mostrar errores de predicción (residuos)", value=False)
 
-# Carga datos
+# Cargar datos
 data = {hoja: cargar_hoja(SHEET_ID, hoja) for hoja in HOJAS}
 df = data[hoja_sel]
 
-# Paletas para modo claro y modo oscuro (colores para líneas, textos, fondo, etc)
+# Paletas colores modo claro y oscuro
 PALETA_CLARA = {
     "real": "#004165",
     "predicho_cp": "#2a9d8f",
@@ -80,23 +70,19 @@ PALETA_CLARA = {
     "lineas_ejes": "#888888",
     "grid": "#dddddd"
 }
-
 PALETA_OSCURA = {
-    "real": "#7FDBFF",           # celeste claro
-    "predicho_cp": "#39CCCC",   # turquesa
-    "predicho_lp": "#3D9970",   # verde oscuro
+    "real": "#7FDBFF",
+    "predicho_cp": "#39CCCC",
+    "predicho_lp": "#3D9970",
     "intervalo_confianza": "rgba(61, 153, 112, 0.3)",
-    "error": "#FF4136",          # rojo brillante
+    "error": "#FF4136",
     "fondo": "#1e1e1e",
     "texto": "#f0f0f0",
     "lineas_ejes": "#bbbbbb",
     "grid": "#444444"
 }
-
-# Seleccionar paleta según modo
 COLOR_PALETA = PALETA_OSCURA if modo_oscuro else PALETA_CLARA
 
-# Estilos layout Plotly
 def layout_template(title):
     return dict(
         title=dict(
@@ -139,7 +125,6 @@ def layout_template(title):
         hovermode='x unified'
     )
 
-# Generar gráfico según hoja seleccionada con Plotly
 fig = go.Figure()
 
 if hoja_sel == "Datos Originales":
@@ -159,7 +144,7 @@ elif hoja_sel == "Prediccion_CP":
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
-    # Real
+
     fig.add_trace(go.Scatter(
         x=df_hist_cp['MES'],
         y=df_hist_cp['USD_VENTA'],
@@ -169,7 +154,6 @@ elif hoja_sel == "Prediccion_CP":
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
     ))
-    # Predicción CP
     fig.add_trace(go.Scatter(
         x=df['Mes'],
         y=df['USD_Predicho_CP'],
@@ -179,7 +163,6 @@ elif hoja_sel == "Prediccion_CP":
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
     ))
-    # Intervalo confianza
     fig.add_trace(go.Scatter(
         x=pd.concat([df['Mes'], df['Mes'][::-1]]),
         y=pd.concat([df['IC_Bajo_CP'], df['IC_Alto_CP'][::-1]]),
@@ -190,13 +173,12 @@ elif hoja_sel == "Prediccion_CP":
         showlegend=True,
         name='IC 95%'
     ))
-
     fig.update_layout(layout_template("Predicción a Corto Plazo"))
 
 elif hoja_sel == "Prediccion_LP":
     df_hist = data["Datos Originales"]
     df_hist_lp = df_hist[df_hist['MES'] >= '2020-01-01']
-    # Real
+
     fig.add_trace(go.Scatter(
         x=df_hist_lp['MES'],
         y=df_hist_lp['USD_VENTA'],
@@ -206,7 +188,6 @@ elif hoja_sel == "Prediccion_LP":
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
     ))
-    # Predicción LP
     fig.add_trace(go.Scatter(
         x=df['Mes'],
         y=df['USD_Predicho_LP'],
@@ -216,7 +197,6 @@ elif hoja_sel == "Prediccion_LP":
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
     ))
-    # Intervalo confianza
     fig.add_trace(go.Scatter(
         x=pd.concat([df['Mes'], df['Mes'][::-1]]),
         y=pd.concat([df['IC_Bajo_LP'], df['IC_Alto_LP'][::-1]]),
@@ -227,11 +207,9 @@ elif hoja_sel == "Prediccion_LP":
         showlegend=True,
         name='IC 95%'
     ))
-
     fig.update_layout(layout_template("Predicción a Largo Plazo"))
 
 elif hoja_sel == "Real vs Predicho":
-    # Real y Predicho
     fig.add_trace(go.Scatter(
         x=df['Fecha'],
         y=df['Real'],
@@ -250,8 +228,6 @@ elif hoja_sel == "Real vs Predicho":
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
     ))
-
-    # Errores (residuos)
     if mostrar_residuos:
         fig.add_trace(go.Bar(
             x=df['Fecha'],
@@ -261,20 +237,9 @@ elif hoja_sel == "Real vs Predicho":
             opacity=0.6,
             hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
         ))
-
     fig.update_layout(layout_template("Comparación Real vs Predicción"))
 
-# Mostrar gráfico
 st.plotly_chart(fig, use_container_width=True)
-
-# Botones de descarga CSV y PNG
-import io
-csv_buffer = df.to_csv(index=False).encode("utf-8")
-img_bytes = fig.to_image(format="png", width=1200, height=600, scale=2)
-
-with st.sidebar:
-    st.download_button("⬇️ Descargar CSV", data=csv_buffer, file_name=f"{hoja_sel.replace(' ', '_')}.csv", mime="text/csv")
-    st.download_button("⬇️ Descargar imagen PNG", data=img_bytes, file_name=f"{hoja_sel.replace(' ', '_')}.png", mime="image/png")
 
 # Sección colapsable "Sobre el modelo"
 with st.expander("📖 Sobre el modelo"):
