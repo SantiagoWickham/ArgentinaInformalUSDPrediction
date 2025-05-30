@@ -45,7 +45,7 @@ if hoja_sel == "Datos Originales":
     # Mostrar datos desde 2020-01-01
     df_hist = df[df['MES'] >= '2020-01-01']
     ax.plot(df_hist['MES'], df_hist['USD_VENTA'], label='USD Blue', color='#003f5c', linewidth=2)
-    ax.set_title("Datos Originales: USD Venta (desde 2020)")
+    ax.set_title("Datos Originales: USD Blue (desde 2020)")
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Precio USD Blue (ARS)")
     ax.legend()
