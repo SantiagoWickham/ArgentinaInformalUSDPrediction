@@ -34,8 +34,8 @@ data = {hoja: cargar_hoja(sheet_id, hoja) for hoja in hojas}
 hoja_sel = st.selectbox("Selecciona hoja para graficar:", hojas)
 
 df = data[hoja_sel]
-st.write(f"Vista previa datos hoja **{hoja_sel}**")
-st.dataframe(df.head())
+#st.write(f"Vista previa datos hoja **{hoja_sel}**")
+#st.dataframe(df.head())
 
 sns.set_style("whitegrid")
 
