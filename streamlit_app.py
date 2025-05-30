@@ -15,7 +15,9 @@ st.title("📈 Visualización del Modelo Econométrico del USD Blue")
 st.markdown("""
 Este dashboard interactivo permite visualizar el comportamiento histórico del dólar blue en Argentina, 
 así como las proyecciones de corto y largo plazo generadas mediante un modelo econométrico.  
-Las bandas representan intervalos de confianza del 95%.
+Este es un modelo one month ahead (predicción a un mes), por lo que las proyecciones para períodos t+2
+en adelante se realizan bajo el supuesto ceteris paribus en las variables macroeconómicas, es decir, 
+considerando que estas se mantienen constantes.
 
 ---
 """)
