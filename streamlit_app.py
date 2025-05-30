@@ -60,40 +60,38 @@ elif hoja_sel == "Prediccion_CP":
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
 
-    # Último punto real
+    # Último dato real
     fecha_real = df_hist_cp['MES'].max()
     valor_real = df_hist_cp[df_hist_cp['MES'] == fecha_real]['USD_VENTA'].values[0]
 
     # Primer punto de predicción
     fecha_pred = df['Mes'].min()
     fila_pred = df[df['Mes'] == fecha_pred].iloc[0]
-
     pred = fila_pred['USD_Predicho_CP']
     ic_bajo = fila_pred['IC_Bajo_CP']
     ic_alto = fila_pred['IC_Alto_CP']
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    # Serie real
+    # Línea real
     ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
 
-    # Predicción
+    # Línea predicción
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
 
-    # Triángulo de apertura del IC
-    ax.fill_between(
-        [fecha_real, fecha_pred],
-        [valor_real, ic_bajo],
-        [valor_real, ic_alto],
-        color='#2f7c5e',
-        alpha=0.25,
-        label='IC 95% (transición)'
-    )
+    # Relleno triangular (manual)
+    fechas_triangulo = [fecha_real, fecha_pred]
+    bajo_triangulo = [valor_real, ic_bajo]
+    alto_triangulo = [valor_real, ic_alto]
 
-    # Resto del IC (predicción)
+    ax.fill_between(fechas_triangulo, bajo_triangulo, alto_triangulo,
+                    color='#2f7c5e', alpha=0.25, label='IC 95% (transición)')
+
+    # Relleno IC normal desde la segunda fecha en adelante
     df_restante = df[df['Mes'] > fecha_pred]
-    ax.fill_between(df_restante['Mes'], df_restante['IC_Bajo_CP'], df_restante['IC_Alto_CP'],
-                    color='#2f7c5e', alpha=0.25)
+    if not df_restante.empty:
+        ax.fill_between(df_restante['Mes'], df_restante['IC_Bajo_CP'], df_restante['IC_Alto_CP'],
+                        color='#2f7c5e', alpha=0.25)
 
     # Estética
     ax.set_title("Predicción Corto Plazo: USD Blue", fontsize=16, weight='bold')
@@ -102,7 +100,7 @@ elif hoja_sel == "Prediccion_CP":
     ax.legend()
     ax.grid(True, linestyle='--', alpha=0.6)
     ax.xaxis.set_major_locator(mdates.MonthLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))  # Mostrar día para más precisión
     plt.xticks(rotation=45)
     plt.tight_layout()
 
