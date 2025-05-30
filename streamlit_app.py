@@ -57,9 +57,19 @@ if hoja_sel == "Datos Originales":
     plt.xticks(rotation=45)
 elif hoja_sel == "Prediccion_CP":
     # Últimos 6 meses de datos reales + predicción CP con IC
+    # Definir df_hist_cp con últimos 6 meses reales
+    df_hist_cp = data["Datos Originales"]
+    fecha_6m_antes = df_hist_cp['MES'].max() - pd.DateOffset(months=6)
+    df_hist_cp = df_hist_cp[df_hist_cp['MES'] >= fecha_6m_antes]
+
     # Datos base
     ultimo_real_fecha = df_hist_cp['MES'].max()
     ultimo_real_valor = df_hist_cp.loc[df_hist_cp['MES'] == ultimo_real_fecha, 'USD_VENTA'].values[0]
+
+    primera_pred_fecha = df['Mes'].min()
+    ic_bajo_1 = df.loc[df['Mes'] == primera_pred_fecha, 'IC_Bajo_CP'].values[0]
+    ic_alto_1 = df.loc[df['Mes'] == primera_pred_fecha, 'IC_Alto_CP'].values[0]
+    pred_medio_1 = df.loc[df['Mes'] == primera_pred_fecha, 'USD_Predicho_CP'].values[0]
 
     primera_pred_fecha = df['Mes'].min()
     ic_bajo_1 = df.loc[df['Mes'] == primera_pred_fecha, 'IC_Bajo_CP'].values[0]
