@@ -113,7 +113,7 @@ elif hoja_sel == "Prediccion_LP":
     ax.annotate(
         f'1er Predicho LP:\n{primer_pred_lp["USD_Predicho_LP"]:.2f} ARS\n{primer_pred_lp["Mes"].strftime("%Y-%m-%d")}',
         xy=(primer_pred_lp['Mes'], primer_pred_lp['USD_Predicho_LP']),
-        xytext=(primer_pred_lp['Mes'], primer_pred_lp['USD_Predicho_LP'] - 50),
+        xytext=(primer_pred_lp['Mes'], primer_pred_lp['USD_Predicho_LP'] - 100),
         arrowprops=dict(facecolor='#a3d9a5', arrowstyle='->'),
         fontsize=12,
         ha='center',
