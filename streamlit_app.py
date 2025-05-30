@@ -336,3 +336,5 @@ st.markdown("""
 
 🔗 [LinkedIn](https://www.linkedin.com/in/santiagowickham/)  
 🐙 [GitHub](https://github.com/SantiagoWickham)
+
+""")
