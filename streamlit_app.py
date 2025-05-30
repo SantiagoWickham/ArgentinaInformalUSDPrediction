@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import seaborn as sns
 import urllib.parse
 
@@ -58,12 +59,37 @@ elif hoja_sel == "Prediccion_CP":
 
 elif hoja_sel == "Prediccion_LP":
     # Grafico Mes vs USD_Predicho_LP con bandas IC_Bajo_LP y IC_Alto_LP
-    plt.plot(df['Mes'], df['USD_Predicho_LP'], label='Predicción LP', color='green')
-    plt.fill_between(df['Mes'], df['IC_Bajo_LP'], df['IC_Alto_LP'], color='green', alpha=0.2, label='IC 95%')
-    plt.title("Predicción Largo Plazo")
-    plt.xlabel("Mes")
-    plt.ylabel("USD Predicho LP")
-    plt.legend()
+    def plot_prediccion_lp(df_lp, df_original):
+    # Filtrar desde 2020 para LP
+    df_hist = df_original[df_original['MES'] >= '2020-01-01']
+    df_pred = df_lp.copy()
+
+    fig, ax = plt.subplots(figsize=(12,6))
+
+    # Plot histórico real
+    ax.plot(df_hist['MES'], df_hist['USD_VENTA'], label='USD Real', color='#003f5c', linewidth=2)
+
+    # Plot predicción LP
+    ax.plot(df_pred['Mes'], df_pred['USD_Predicho_LP'], label='USD Predicho LP', color='#7bcf6f', linewidth=2, linestyle='--')
+
+    # Intervalos de confianza (sombra)
+    ax.fill_between(df_pred['Mes'], df_pred['IC_Bajo_LP'], df_pred['IC_Alto_LP'], color='#7bcf6f', alpha=0.25, label='IC 95%')
+
+    # Formatear eje X fechas
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    plt.xticks(rotation=45)
+
+    # Etiquetas y título
+    ax.set_xlabel('Fecha')
+    ax.set_ylabel('Precio USD Blue (ARS)')
+    ax.set_title('Predicción USD Blue - Largo Plazo (desde 2020)')
+    ax.legend()
+
+    # Grilla suave
+    ax.grid(True, linestyle='--', alpha=0.5)
+
+    st.pyplot(fig)
 
 elif hoja_sel == "Real vs Predicho":
     # Grafico Fecha vs USD_Real y USD_Predicho
