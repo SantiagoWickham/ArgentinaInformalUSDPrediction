@@ -61,25 +61,19 @@ elif hoja_sel == "Prediccion_CP":
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
-
     ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
-
     # Valores del primer mes (actual)
     primer_mes = df['Mes'].iloc[0]
     valor_actual = df['USD_Predicho_CP'].iloc[0]
-
     # Segundo mes (primer mes con IC)
     segundo_mes = df['Mes'].iloc[1]
     ic_bajo_segundo = df['IC_Bajo_CP'].iloc[1]
     ic_alto_segundo = df['IC_Alto_CP'].iloc[1]
-
     # Convertir a números para matplotlib
     primer_mes_num = mdates.date2num(primer_mes)
     segundo_mes_num = mdates.date2num(segundo_mes)
-
     # Graficar línea de predicción incluyendo punto actual
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
-
     # Dibujar líneas que conectan punto actual con IC bajo y alto del segundo mes
     ax.plot([primer_mes_num, segundo_mes_num],
             [valor_actual, ic_bajo_segundo],
@@ -87,17 +81,14 @@ elif hoja_sel == "Prediccion_CP":
     ax.plot([primer_mes_num, segundo_mes_num],
             [valor_actual, ic_alto_segundo],
             color='#bde7b7', linewidth=0.5)
-
     # Rellenar el área triangular entre estas dos líneas para conectar visualmente IC
     ax.fill_between([primer_mes_num, segundo_mes_num],
                     [valor_actual, ic_bajo_segundo],
                     [valor_actual, ic_alto_segundo],
                     color='#bde7b7', alpha=0.25)
-
     # Rellenar el IC desde el segundo mes en adelante (donde hay datos)
     fechas_ic_num = mdates.date2num(df['Mes'].iloc[1:])
     ax.fill_between(fechas_ic_num, df['IC_Bajo_CP'].iloc[1:], df['IC_Alto_CP'].iloc[1:], color='#bde7b7', alpha=0.25, label='IC 95%')
-
     ax.set_title("Predicción Corto Plazo (últimos 6 meses reales + predicción)")
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Precio USD Blue (ARS)")
@@ -111,11 +102,37 @@ elif hoja_sel == "Prediccion_LP":
     # Mostrar datos desde 2020 + predicción LP con IC
     df_hist = data["Datos Originales"]
     df_hist_lp = df_hist[df_hist['MES'] >= '2020-01-01']
-    
     ax.plot(df_hist_lp['MES'], df_hist_lp['USD_VENTA'], label='USD Real', color='#003f5c', linewidth=2)
+    # Primer mes (actual sin IC)
+    primer_mes = df['Mes'].iloc[0]
+    valor_actual = df['USD_Predicho_LP'].iloc[0]
+    # Segundo mes (primer mes con IC)
+    segundo_mes = df['Mes'].iloc[1]
+    ic_bajo_segundo = df['IC_Bajo_LP'].iloc[1]
+    ic_alto_segundo = df['IC_Alto_LP'].iloc[1]
+    # Convertir fechas para matplotlib
+    primer_mes_num = mdates.date2num(primer_mes)
+    segundo_mes_num = mdates.date2num(segundo_mes)
+    # Línea de predicción incluyendo punto actual
     ax.plot(df['Mes'], df['USD_Predicho_LP'], label='Predicción LP', color='#7bcf6f', linewidth=2, linestyle='--')
-    ax.fill_between(df['Mes'], df['IC_Bajo_LP'], df['IC_Alto_LP'], color='#7bcf6f', alpha=0.25, label='IC 95%')
-    
+    # Líneas que conectan actual con IC bajo y alto
+    ax.plot([primer_mes_num, segundo_mes_num],
+            [valor_actual, ic_bajo_segundo],
+            color='#bde7b7', linewidth=0.5)
+    ax.plot([primer_mes_num, segundo_mes_num],
+            [valor_actual, ic_alto_segundo],
+            color='#bde7b7', linewidth=0.5)
+    # Área triangular para conexión de IC
+    ax.fill_between([primer_mes_num, segundo_mes_num],
+                    [valor_actual, ic_bajo_segundo],
+                    [valor_actual, ic_alto_segundo],
+                    color='#bde7b7', alpha=0.25)
+    # Área de IC desde segundo mes en adelante
+    fechas_ic_num = mdates.date2num(df['Mes'].iloc[1:])
+    ax.fill_between(fechas_ic_num,
+                    df['IC_Bajo_LP'].iloc[1:],
+                    df['IC_Alto_LP'].iloc[1:],
+                    color='#bde7b7', alpha=0.25, label='IC 95%')
     ax.set_title("Predicción Largo Plazo (desde 2020)")
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Precio USD Blue (ARS)")
