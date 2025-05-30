@@ -84,18 +84,6 @@ elif hoja_sel == "Prediccion_CP":
     ax.xaxis.set_major_locator(mdates.MonthLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.xticks(rotation=45)
-    # Fecha exacta para junio en datetime
-    fecha_junio = pd.Timestamp('2025-06-30 00:00:00')
-    # Filtrar fila para junio
-    fila_junio = df[df['Mes'] == fecha_junio]
-if not fila_junio.empty:
-    valor_junio = fila_junio['USD_Predicho_CP'].values[0]
-    ax.annotate(f'Junio: {valor_junio:.2f}', 
-                xy=(fecha_junio, valor_junio),            # Punto a marcar
-                xytext=(fecha_junio, valor_junio + 25),  # Texto arriba, ajusta el 20 según escala
-                arrowprops=dict(facecolor='black', arrowstyle='->'),
-                fontsize=12,
-                ha='center')
 
 elif hoja_sel == "Prediccion_LP":
     df_hist = data["Datos Originales"]
@@ -109,20 +97,6 @@ elif hoja_sel == "Prediccion_LP":
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.xticks(rotation=45)
-    # Asegurarse que 'Mes' sea datetime
-    df['Mes'] = pd.to_datetime(df['Mes'])
-    # Definir fecha junio
-    fecha_junio = pd.Timestamp('2025-06-30 00:00:00')
-    # Filtrar fila para junio
-    fila_junio = df[df['Mes'] == fecha_junio]
-    if not fila_junio.empty:
-        valor_junio = fila_junio['USD_Predicho_LP'].values[0]
-        ax.annotate(f'Junio: {valor_junio:.2f}',
-                    xy=(fecha_junio, valor_junio),
-                    xytext=(fecha_junio, valor_junio + 30),
-                    arrowprops=dict(facecolor='black', arrowstyle='->'),
-                    fontsize=12,
-                    ha='center')
 
 elif hoja_sel == "Real vs Predicho":
     ax.plot(df['Fecha'], df['USD_Real'], label='USD Real', color='black', linewidth=2)
