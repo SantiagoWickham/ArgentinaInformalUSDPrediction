@@ -1,4 +1,4 @@
-import streamlit as st
+    import streamlit as st
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
@@ -208,7 +208,14 @@ if st.sidebar.button("Cargar y Analizar Datos"):
 
         mostrar_tests_diagnosticos(model)
 
-        X_for_vif = sm.add_constant(df[['IPC', 'RESERVAS_lag1', 'BADLAR_lag1', 'RP', 'MEP']].dropna())
+        # Antes de calcular el VIF, crear los lags necesarios:
+        df['RESERVAS_lag1'] = df['RESERVAS'].shift(1)
+        df['BADLAR_lag1'] = df['BADLAR'].shift(1)
+
+        # Dropna para evitar filas con NaN luego del lag
+        df_vif = df[['IPC', 'RESERVAS_lag1', 'BADLAR_lag1', 'RP', 'MEP']].dropna()
+
+        X_for_vif = sm.add_constant(df_vif)
         mostrar_vif(X_for_vif)
 
         graficar_prediccion(y_test, y_pred)
