@@ -55,43 +55,16 @@ if hoja_sel == "Datos Originales":
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.xticks(rotation=45)
-
 elif hoja_sel == "Prediccion_CP":
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Últimos 6 meses de datos reales
+    # Últimos 6 meses de datos reales + predicción CP con IC
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
-
-    # Fechas clave
-    fecha_ultimo_real = df_hist_cp['MES'].max()
-    fecha_primera_pred = df['Mes'].min()
-    fila_primera = df[df['Mes'] == fecha_primera_pred].iloc[0]
-
-    # Valores para la primera predicción
-    pred = fila_primera['USD_Predicho_CP']
-    ic_bajo = fila_primera['IC_Bajo_CP']
-    ic_alto = fila_primera['IC_Alto_CP']
-
-    # Interpolación
-    n_puntos = 10
-    fechas_interp = pd.date_range(start=fecha_ultimo_real, end=fecha_primera_pred, periods=n_puntos)
-    valores_bajo_interp = np.linspace(pred, ic_bajo, n_puntos)
-    valores_alto_interp = np.linspace(pred, ic_alto, n_puntos)
-
-    # Gráfico
+    
     ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
-
-    # Relleno inicial interpolado
-    ax.fill_between(fechas_interp, valores_bajo_interp, valores_alto_interp, color='#2f7c5e', alpha=0.25)
-
-    # Resto del intervalo de confianza
-    df_resto = df[df['Mes'] > fecha_primera_pred]
-    ax.fill_between(df_resto['Mes'], df_resto['IC_Bajo_CP'], df_resto['IC_Alto_CP'], color='#2f7c5e', alpha=0.25, label='IC 95%')
-
-    # Estética
+    ax.fill_between(df['Mes'], df['IC_Bajo_CP'], df['IC_Alto_CP'], color='#2f7c5e', alpha=0.25, label='IC 95%')
+    
     ax.set_title("Predicción Corto Plazo (últimos 6 meses reales + predicción)")
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Precio USD Blue (ARS)")
@@ -100,10 +73,6 @@ elif hoja_sel == "Prediccion_CP":
     ax.xaxis.set_major_locator(mdates.MonthLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.xticks(rotation=45)
-    plt.tight_layout()
-
-    # Mostrar figura
-    st.pyplot(fig)
 
 elif hoja_sel == "Prediccion_LP":
     # Mostrar datos desde 2020 + predicción LP con IC
