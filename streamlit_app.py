@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
 import urllib.parse
+import numpy as np
 
 st.set_page_config(page_title="Gráficos USD Blue", layout="wide")
 st.title("Visualización modelo econométrico USD Blue")
@@ -97,7 +98,7 @@ elif hoja_sel == "Prediccion_CP":
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
 
     # Triángulo del intervalo de confianza inicial (relleno)
-    ax.fill_between(fechas_triangulo, valores_bajo, valores_alto, color='#2f7c5e', alpha=0.25)
+    ax.fill_between(fechas_interp, valores_bajo_interp, valores_alto_interp, color='#2f7c5e', alpha=0.25)
 
     # Resto del IC (desde segundo punto en adelante)
     df_resto = df[df['Mes'] > fecha_primera_pred]
