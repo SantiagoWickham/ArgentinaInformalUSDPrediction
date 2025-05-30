@@ -22,7 +22,7 @@ plt.rcParams['axes.prop_cycle'] = plt.cycler(color=financial_palette)
 
 @st.cache_data(show_spinner=True)
 def cargar_datos(sheet_id, sheet_name):
-    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+    url = f"https://docs.google.com/spreadsheets/d/1gWaV7dbwImFO6NrfTO08QmZGZIdHBsOdyweaR3BJbYY/edit?gid=0#gid=0"
     df = pd.read_csv(url)
     fechas = ['FECHA_USD', 'FECHA_IPC', 'FECHA_RP', 'FECHA_RESERVAS', 'FECHA_M2', 'FECHA_BADLAR', 'FECHA_TC', 'FECHA_MEP']
     for col in fechas:
