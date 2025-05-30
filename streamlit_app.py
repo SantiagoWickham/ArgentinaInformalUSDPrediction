@@ -89,11 +89,11 @@ elif hoja_sel == "Prediccion_CP":
     ax.annotate(
         f'1er Predicho CP:\n{primer_pred_cp["USD_Predicho_CP"]:.2f} ARS\n{primer_pred_cp["Mes"].strftime("%Y-%m-%d")}',
         xy=(primer_pred_cp['Mes'], primer_pred_cp['USD_Predicho_CP']),
-        xytext=(primer_pred_cp['Mes'], primer_pred_cp['USD_Predicho_CP'] + 40),  # Ajusta vertical
+        xytext=(primer_pred_cp['Mes'], primer_pred_cp['USD_Predicho_CP'] -50),  # Ajusta vertical
         arrowprops=dict(facecolor='green', arrowstyle='->'),
         fontsize=12,
         ha='center',
-        color='green'
+        color='a3d9a5'
     )
 
 elif hoja_sel == "Prediccion_LP":
@@ -114,10 +114,10 @@ elif hoja_sel == "Prediccion_LP":
         f'1er Predicho LP:\n{primer_pred_lp["USD_Predicho_LP"]:.2f} ARS\n{primer_pred_lp["Mes"].strftime("%Y-%m-%d")}',
         xy=(primer_pred_lp['Mes'], primer_pred_lp['USD_Predicho_LP']),
         xytext=(primer_pred_lp['Mes'], primer_pred_lp['USD_Predicho_LP'] + 40),
-        arrowprops=dict(facecolor='darkgreen', arrowstyle='->'),
+        arrowprops=dict(facecolor='a3d9a5', arrowstyle='->'),
         fontsize=12,
         ha='center',
-        color='darkgreen'
+        color='a3d9a5'
     )
 
 elif hoja_sel == "Real vs Predicho":
