@@ -78,32 +78,33 @@ COLOR_PALETA = {
     "fondo_claro": "#f9f9f9",
     "fondo_oscuro": "#1e1e1e",
     "texto_claro": "#000000",
-    "texto_oscuro": "#f0f0f0"
+    "texto_oscuro": "##f7f7f7"
 }
 
 # Estilos layout Plotly
+line_color = "#f0f0f0" if modo_oscuro else "#888"  # claro en modo oscuro, gris en modo claro
 def layout_template(title):
     return dict(
         title=title,
-        xaxis=dict(
-            title="Fecha",
-            showgrid=True,
-            zeroline=False,
-            showline=True,
-            linewidth=1,
-            linecolor="#888",
-            ticks="outside",
-            tickformat="%Y-%m",
-            tickangle=45,
-            dtick="M3"
+    xaxis=dict(
+        title="Fecha",
+        showgrid=True,
+        zeroline=False,
+        showline=True,
+        linewidth=1,
+        linecolor=line_color,
+        ticks="outside",
+        tickformat="%Y-%m",
+        tickangle=45,
+        dtick="M3"
         ),
-        yaxis=dict(
-            title="Precio (ARS)",
-            showgrid=True,
-            zeroline=False,
-            showline=True,
-            linewidth=1,
-            linecolor="#888"
+    yaxis=dict(
+        title="Precio (ARS)",
+        showgrid=True,
+        zeroline=False,
+        showline=True,
+        linewidth=1,
+        linecolor=line_color
         ),
         plot_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo_oscuro else COLOR_PALETA["fondo_claro"],
         paper_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo_oscuro else COLOR_PALETA["fondo_claro"],
