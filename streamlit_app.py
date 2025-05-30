@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import urllib.parse
 
 st.set_page_config(page_title="Gráficos USD Blue", layout="wide")
 st.title("Visualización modelo econométrico USD Blue")
@@ -10,12 +11,10 @@ sheet_id = "1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X"
 
 @st.cache_data(show_spinner=True)
 def cargar_hoja(sheet_id, sheet_name):
-    # Codificar el nombre de la hoja para URL
     sheet_name_encoded = urllib.parse.quote(sheet_name)
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_encoded}"
     df = pd.read_csv(url)
     
-    # Conversión fecha según hoja
     if sheet_name == "Datos Originales":
         df['MES'] = pd.to_datetime(df['MES'], errors='coerce')
         df = df.sort_values('MES')
