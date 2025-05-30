@@ -3,6 +3,7 @@ import pandas as pd
 import urllib.parse
 import plotly.graph_objs as go
 import numpy as np
+import io
 
 # Configuración de página
 st.set_page_config(
@@ -116,6 +117,18 @@ paleta = PALETAS[paleta_nombre]
 fondo = paleta["fondo_claro"] if modo == "Claro" else paleta["fondo_oscuro"]
 texto = paleta["texto_claro"] if modo == "Claro" else paleta["texto_oscuro"]
 
+# Usamos estas variables para el layout Plotly
+COLOR_PALETA = {
+    "real": paleta["real"],
+    "predicho_cp": paleta["predicho_cp"],
+    "predicho_lp": paleta["predicho_lp"],
+    "intervalo_confianza": paleta["intervalo_confianza"],
+    "error": paleta["error"],
+    "fondo_claro": paleta["fondo_claro"],
+    "fondo_oscuro": paleta["fondo_oscuro"],
+    "texto_claro": paleta["texto_claro"],
+    "texto_oscuro": paleta["texto_oscuro"]
+}
 
 # Estilos layout Plotly
 def layout_template(title):
@@ -141,9 +154,9 @@ def layout_template(title):
             linewidth=1,
             linecolor="#888"
         ),
-        plot_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo_oscuro else COLOR_PALETA["fondo_claro"],
-        paper_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo_oscuro else COLOR_PALETA["fondo_claro"],
-        font=dict(color=COLOR_PALETA["texto_oscuro"] if modo_oscuro else COLOR_PALETA["texto_claro"]),
+        plot_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo == "Oscuro" else COLOR_PALETA["fondo_claro"],
+        paper_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo == "Oscuro" else COLOR_PALETA["fondo_claro"],
+        font=dict(color=COLOR_PALETA["texto_oscuro"] if modo == "Oscuro" else COLOR_PALETA["texto_claro"]),
         legend=dict(
             bgcolor='rgba(0,0,0,0)',
             bordercolor='rgba(0,0,0,0)'
@@ -194,20 +207,20 @@ elif hoja_sel == "Prediccion_CP":
     # Intervalo confianza
     fig.add_trace(go.Scatter(
         x=pd.concat([df['Mes'], df['Mes'][::-1]]),
-        y=pd.concat([df['IC_Bajo_CP'], df['IC_Alto_CP'][::-1]]),
+        y=pd.concat([df['IC_inf'], df['IC_sup'][::-1]]),
         fill='toself',
         fillcolor=COLOR_PALETA["intervalo_confianza"],
         line=dict(color='rgba(255,255,255,0)'),
-        hoverinfo='skip',
+        hoverinfo="skip",
         showlegend=True,
-        name='IC 95%'
+        name='Intervalo confianza'
     ))
-
-    fig.update_layout(layout_template("Predicción a Corto Plazo"))
+    fig.update_layout(layout_template("Predicción de corto plazo (1 mes adelante)"))
 
 elif hoja_sel == "Prediccion_LP":
     df_hist = data["Datos Originales"]
-    df_hist_lp = df_hist[df_hist['MES'] >= '2020-01-01']
+    fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
+    df_hist_lp = df_hist[df_hist['MES'] >= fecha_6m_antes]
     # Real
     fig.add_trace(go.Scatter(
         x=df_hist_lp['MES'],
@@ -216,7 +229,7 @@ elif hoja_sel == "Prediccion_LP":
         name='USD Real',
         line=dict(color=COLOR_PALETA["real"], width=3),
         marker=dict(size=6),
-        hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
+        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
     ))
     # Predicción LP
     fig.add_trace(go.Scatter(
@@ -226,24 +239,23 @@ elif hoja_sel == "Prediccion_LP":
         name='Predicción LP',
         line=dict(color=COLOR_PALETA["predicho_lp"], width=3, dash='dash'),
         marker=dict(size=6),
-        hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
+        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
     ))
     # Intervalo confianza
     fig.add_trace(go.Scatter(
         x=pd.concat([df['Mes'], df['Mes'][::-1]]),
-        y=pd.concat([df['IC_Bajo_LP'], df['IC_Alto_LP'][::-1]]),
+        y=pd.concat([df['IC_inf'], df['IC_sup'][::-1]]),
         fill='toself',
         fillcolor=COLOR_PALETA["intervalo_confianza"],
         line=dict(color='rgba(255,255,255,0)'),
-        hoverinfo='skip',
+        hoverinfo="skip",
         showlegend=True,
-        name='IC 95%'
+        name='Intervalo confianza'
     ))
-
-    fig.update_layout(layout_template("Predicción a Largo Plazo"))
+    fig.update_layout(layout_template("Predicción de largo plazo (más de 1 mes adelante)"))
 
 elif hoja_sel == "Real vs Predicho":
-    # Real y Predicho
+    df['Error'] = df['USD_Predicho'] - df['USD_Real']
     fig.add_trace(go.Scatter(
         x=df['Fecha'],
         y=df['USD_Real'],
@@ -251,7 +263,7 @@ elif hoja_sel == "Real vs Predicho":
         name='USD Real',
         line=dict(color=COLOR_PALETA["real"], width=3),
         marker=dict(size=6),
-        hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
+        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
     ))
     fig.add_trace(go.Scatter(
         x=df['Fecha'],
@@ -260,81 +272,40 @@ elif hoja_sel == "Real vs Predicho":
         name='USD Predicho',
         line=dict(color=COLOR_PALETA["predicho_cp"], width=3, dash='dash'),
         marker=dict(size=6),
-        hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
+        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
     ))
-
-    # Errores (residuos)
     if mostrar_residuos:
-        residuos = df['USD_Real'] - df['USD_Predicho']
         fig.add_trace(go.Bar(
             x=df['Fecha'],
-            y=residuos,
-            name='Error de predicción (residuo)',
+            y=df['Error'],
+            name='Error de Predicción',
             marker_color=COLOR_PALETA["error"],
             opacity=0.6,
-            yaxis='y2',
-            hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
+            yaxis="y2",
+            hovertemplate='%{y:.2f} ARS<extra></extra>'
         ))
-        # Añadir segundo eje Y para errores
         fig.update_layout(
             yaxis2=dict(
-                title='Error (Residuo)',
-                overlaying='y',
-                side='right',
+                title="Error (ARS)",
+                overlaying="y",
+                side="right",
                 showgrid=False,
-                zeroline=True,
-                zerolinecolor='rgba(0,0,0,0.3)',
-                zerolinewidth=1,
-                tickformat='.2f',
-                rangemode='tozero'
+                zeroline=False,
+                showline=True,
+                linewidth=1,
+                linecolor="#888"
             )
         )
-    fig.update_layout(layout_template("Comparación: Real vs Predicho"))
+    fig.update_layout(layout_template("Comparación Real vs Predicho"))
 
-# Mostrar gráfico
+# Mostrar figura
 st.plotly_chart(fig, use_container_width=True)
 
-# Botones de descarga CSV y PNG
-import io
-csv_buffer = df.to_csv(index=False).encode("utf-8")
-img_bytes = fig.to_image(format="png", width=1200, height=600, scale=2)
-
-with st.sidebar:
-    st.download_button("⬇️ Descargar CSV", data=csv_buffer, file_name=f"{hoja_sel.replace(' ', '_')}.csv", mime="text/csv")
-    st.download_button("⬇️ Descargar imagen PNG", data=img_bytes, file_name=f"{hoja_sel.replace(' ', '_')}.png", mime="image/png")
-
-# Sección colapsable "Sobre el modelo"
-with st.expander("📖 Sobre el modelo"):
-    st.markdown("""
-    ### Metodología del modelo econométrico
-
-    **Tipo de regresión:** Regresión lineal múltiple con variables macroeconómicas.
-
-    **Variables incluidas:** IPC, Reservas Internacionales, M2, BADLAR, Riesgo País, MEP.
-
-    **Supuestos y validación estadística:**
-    - Se verificó la linealidad entre las variables y el precio del USD blue.
-    - Las variables macroeconómicas se consideraron exógenas al modelo.
-    - Se realizaron tests estadísticos para validar independencia y homocedasticidad de residuos, incluyendo:
-      - Test de White (heterocedasticidad),
-      - Test de Durbin-Watson (autocorrelación),
-      - Test Breusch-Pagan (heterocedasticidad),
-      - Otros análisis complementarios.
-    - Los resultados de estos tests confirmaron que los supuestos clásicos del modelo se cumplen adecuadamente.
-
-    **Modelo one-month-ahead:** El modelo genera predicciones a un mes, considerando que las variables macroeconómicas permanecen constantes para predicciones a más largo plazo.
-
-    El modelo se ajusta con datos históricos mensuales y se valida con métricas de error como MAE y RMSE.
-
-    Las predicciones de largo plazo asumen estabilidad en las variables macro.
-    """)
-
-# Footer
-st.markdown("---")
-st.markdown("© 2025 Santiago Wickham | Estudiante de Lic. en Economía y Finanzas  | Proyecto económico - Datos: Fuentes oficiales")
-st.markdown(""" 
-
-🔗 [LinkedIn](https://www.linkedin.com/in/santiagowickham/)  
-🐙 [GitHub](https://github.com/SantiagoWickham)
-
-""")
+# Opción para descargar datos como CSV
+csv = df.to_csv(index=False).encode('utf-8')
+st.download_button(
+    label="📥 Descargar datos CSV",
+    data=csv,
+    file_name=f"{hoja_sel.replace(' ', '_').lower()}.csv",
+    mime="text/csv"
+)
