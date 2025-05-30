@@ -22,10 +22,9 @@ plt.rcParams['axes.prop_cycle'] = plt.cycler(color=financial_palette)
 
 @st.cache_data(show_spinner=True)
 def cargar_datos(sheet_id, sheet_name):
-    # URL pública ejemplo con datos consolidados (cambia si tienes otro Google Sheet)
     url = f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRAXkmSc6If8DaPCGgDX3GfhlvInDlajIUIHAztGwZGcdTa6k3SNRq2jhKthYOnNLQAFEb6_t2XPw1Y/pub?output=csv"
     df = pd.read_csv(url)
-    
+
     fechas = ['FECHA_USD', 'FECHA_IPC', 'FECHA_RP', 'FECHA_RESERVAS', 'FECHA_M2', 'FECHA_BADLAR', 'FECHA_TC', 'FECHA_MEP']
     for col in fechas:
         df[col] = pd.to_datetime(df[col], errors='coerce', dayfirst=True)
@@ -70,11 +69,11 @@ def cargar_datos(sheet_id, sheet_name):
 
 def ajustar_modelo_regresion(df):
     df = df.copy()
-    
+
     # Crear lags de variables
     df['RESERVAS_lag1'] = df['RESERVAS'].shift(1)
     df['BADLAR_lag1'] = df['BADLAR'].shift(1)
-    
+
     df = df.dropna()
 
     X = df[['IPC', 'RESERVAS_lag1', 'BADLAR_lag1', 'RP', 'MEP']]
@@ -134,43 +133,51 @@ def graficar_prediccion(y_test, y_pred):
     ax.set_ylabel("USD Blue")
     st.pyplot(fig)
 
-def proyectar_dolar(df_model, model, meses=12, alpha=0.1):
-    # Proyección simple usando último dato + coeficientes (sin input nuevo, para ejemplo)
+def proyectar_dolar(df, model, meses=12, alpha=0.1):
     st.subheader(f"🔮 Proyección a {meses} meses")
 
-    last_row = df_model.iloc[-1].copy()
-    last_date = df_model.index[-1] if isinstance(df_model.index, pd.DatetimeIndex) else pd.Timestamp.today()
+    # Tomamos la última fila con las variables usadas en el modelo
+    df = df.copy()
+    df['RESERVAS_lag1'] = df['RESERVAS'].shift(1)
+    df['BADLAR_lag1'] = df['BADLAR'].shift(1)
+    df = df.dropna()
 
-    coef = model.params
-    residual_std = np.std(model.resid)
+    last_row = df.iloc[-1]
+    last_date = df.index[-1]
 
-    fechas_futuras = [last_date + relativedelta(months=i) for i in range(1, meses+1)]
+    coef = model.params.values
+
+    fechas_futuras = [last_date + relativedelta(months=i) for i in range(1, meses + 1)]
     predicciones = []
 
-    for i, fecha in enumerate(fechas_futuras):
-        # Aquí asumo que las variables independientes permanecen constantes (puedes mejorar)
-        X_new = np.array([1,  # constante
-                          last_row.get('IPC', np.nan),
-                          last_row.get('RESERVAS_lag1', np.nan),
-                          last_row.get('BADLAR_lag1', np.nan),
-                          last_row.get('RP', np.nan),
-                          last_row.get('MEP', np.nan)
-                         ])
-        pred = np.dot(coef.values, X_new)
+    # Vector de variables en orden: const, IPC, RESERVAS_lag1, BADLAR_lag1, RP, MEP
+    for i in range(meses):
+        X_new = np.array([
+            1,  # constante
+            last_row['IPC'],
+            last_row['RESERVAS_lag1'],
+            last_row['BADLAR_lag1'],
+            last_row['RP'],
+            last_row['MEP']
+        ])
+        pred = np.dot(coef, X_new)
         predicciones.append(pred)
 
-    df_pred = pd.DataFrame({
-        'Fecha': fechas_futuras,
-        'Predicción USD Blue': predicciones
-    })
-    df_pred.set_index('Fecha', inplace=True)
-    st.line_chart(df_pred)
+        # Actualizar last_row para simular el siguiente mes (opcional: dejar variables constantes)
+        # Aquí dejamos constantes, pero podrías mejorar actualizando variables
 
+    df_pred = pd.DataFrame({'Fecha': fechas_futuras, 'Predicción USD Blue': predicciones})
+    df_pred.set_index('Fecha', inplace=True)
+
+    st.line_chart(df_pred)
     return df_pred
 
 def mostrar_proyeccion(df_pred):
     st.subheader("📅 Tabla de Proyección")
-    st.dataframe(df_pred)
+    if df_pred.empty:
+        st.write("No hay datos para mostrar.")
+    else:
+        st.dataframe(df_pred)
 
 # --- INTERFAZ ---
 
@@ -183,25 +190,28 @@ sheet_id = st.sidebar.text_input("ID de Google Sheet", value=example_sheet_id)
 sheet_name = st.sidebar.text_input("Nombre de la hoja", value=example_sheet_name)
 
 meses_proyectar = st.sidebar.slider("Meses a proyectar", 1, 36, 12)
-alpha_conf = st.sidebar.slider("Nivel de significancia para IC", 0.01, 0.3, 0.1, 0.01)
+alpha_conf = st.sidebar.slider("Nivel de significancia para IC", 0.01, 0.2, 0.1)
 
-if not sheet_id.strip() or not sheet_name.strip():
-    st.warning("Por favor, ingresa el ID de Google Sheet y el nombre de la hoja.")
-    st.stop()
+if st.sidebar.button("Cargar y Analizar Datos"):
+    with st.spinner("Cargando y procesando datos..."):
+        df = cargar_datos(sheet_id, sheet_name)
 
-with st.spinner("Cargando y procesando datos..."):
-    df_final = cargar_datos(sheet_id, sheet_name)
+        st.write("### Datos consolidados mensuales")
+        st.dataframe(df.tail())
 
-st.subheader("📅 Datos mensuales consolidados")
-st.dataframe(df_final.tail(10))
+        model, df_model, X_test, y_test, y_pred, mae, rmse = ajustar_modelo_regresion(df)
 
-model, df_model, X_test, y_test, y_pred, mae, rmse = ajustar_modelo_regresion(df_final)
+        mostrar_resumen_regresion(model)
 
-mostrar_resumen_regresion(model)
-mostrar_tests_diagnosticos(model)
-mostrar_vif(X_test)
+        st.write(f"MAE: {mae:.3f}")
+        st.write(f"RMSE: {rmse:.3f}")
 
-graficar_prediccion(y_test, y_pred)
+        mostrar_tests_diagnosticos(model)
 
-pred_summary = proyectar_dolar(df_final, model, meses=meses_proyectar, alpha=alpha_conf)
-mostrar_proyeccion(pred_summary)
+        X_for_vif = sm.add_constant(df[['IPC', 'RESERVAS_lag1', 'BADLAR_lag1', 'RP', 'MEP']].dropna())
+        mostrar_vif(X_for_vif)
+
+        graficar_prediccion(y_test, y_pred)
+
+        df_proyeccion = proyectar_dolar(df, model, meses=meses_proyectar, alpha=alpha_conf)
+        mostrar_proyeccion(df_proyeccion)
