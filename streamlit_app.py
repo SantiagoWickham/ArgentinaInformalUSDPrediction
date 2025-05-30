@@ -84,6 +84,18 @@ elif hoja_sel == "Prediccion_CP":
     ax.xaxis.set_major_locator(mdates.MonthLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     plt.xticks(rotation=45)
+    # Fecha exacta para junio en datetime
+    fecha_junio = pd.Timestamp('2025-06-30 00:00:00')
+    # Filtrar fila para junio
+    fila_junio = df[df['Mes'] == fecha_junio]
+    if not fila_junio.empty:
+    valor_junio = fila_junio['USD_Predicho_CP'].values[0]
+    ax.annotate(f'Junio: {valor_junio:.2f}', 
+                xy=(fecha_junio, valor_junio),            # Punto a marcar
+                xytext=(fecha_junio, valor_junio + 20),  # Texto arriba, ajusta el 20 según escala
+                arrowprops=dict(facecolor='black', arrowstyle='->'),
+                fontsize=12,
+                ha='center')
 
 elif hoja_sel == "Prediccion_LP":
     df_hist = data["Datos Originales"]
