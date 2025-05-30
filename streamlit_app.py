@@ -286,7 +286,8 @@ Metodología del modelo econométrico:
         - Otros análisis complementarios.
     Los resultados de estos tests confirmaron que los supuestos clásicos del modelo se cumplen adecuadamente.
     
-    Modelo one-month-ahead: El modelo genera predicciones a un mes, considerando que las variables macroeconómicas permanecen constantes para predicciones a más largo plazo.
+    Modelo one-month-ahead: El modelo genera predicciones a un mes, considerando que las variables macroeconómicas 
+                            permanecen constantes para predicciones a más largo plazo.
     El modelo se ajusta con datos históricos mensuales y se valida con métricas de error como MAE y RMSE.
     Las predicciones de largo plazo asumen estabilidad en las variables macro.
     """)
