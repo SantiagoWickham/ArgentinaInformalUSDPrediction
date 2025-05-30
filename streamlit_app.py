@@ -78,14 +78,11 @@ COLOR_PALETA = {
     "fondo_claro": "#f9f9f9",
     "fondo_oscuro": "#1e1e1e",
     "texto_claro": "#000000",
-    "texto_oscuro": "##f7f7f7"
+    "texto_oscuro": "#f7f7f7"  # ← corregido
 }
 
-# Estilos layout Plotly
-line_color = "#f0f0f0" if modo_oscuro else "#888"  # claro en modo oscuro, gris en modo claro
 def layout_template(title, modo_oscuro):
     line_color = "#f0f0f0" if modo_oscuro else "#888"
-    PALETA_ACTUAL = COLOR_PALETA_OSCURO if modo_oscuro else COLOR_PALETA_CLARO
 
     return dict(
         title=title,
@@ -132,7 +129,7 @@ if hoja_sel == "Datos Originales":
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
     ))
-    fig.update_layout(layout_template("USD Blue histórico (desde 2020)"))
+    fig.update_layout(**layout_template("USD Blue histórico (desde 2020)", modo_oscuro))
 
 elif hoja_sel == "Prediccion_CP":
     df_hist = data["Datos Originales"]
@@ -170,7 +167,7 @@ elif hoja_sel == "Prediccion_CP":
         name='IC 95%'
     ))
 
-    fig.update_layout(layout_template("Predicción a Corto Plazo"))
+    fig.update_layout(**layout_template("Predicción a Corto Plazo", modo_oscuro))
 
 elif hoja_sel == "Prediccion_LP":
     df_hist = data["Datos Originales"]
@@ -207,7 +204,7 @@ elif hoja_sel == "Prediccion_LP":
         name='IC 95%'
     ))
 
-    fig.update_layout(layout_template("Predicción a Largo Plazo"))
+   fig.update_layout(**layout_template("Predicción a Largo Plazo", modo_oscuro))
 
 elif hoja_sel == "Real vs Predicho":
     # Real y Predicho
@@ -256,7 +253,7 @@ elif hoja_sel == "Real vs Predicho":
                 rangemode='tozero'
             )
         )
-    fig.update_layout(layout_template("Comparación: Real vs Predicho"))
+    fig.update_layout(**layout_template("Comparación: Real vs. Predicho", modo_oscuro))
 
 # Mostrar gráfico
 st.plotly_chart(fig, use_container_width=True)
