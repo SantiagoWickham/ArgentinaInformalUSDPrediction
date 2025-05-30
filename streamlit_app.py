@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from dateutil.relativedelta import relativedelta
 
-# Config Streamlit
+# Configuración Streamlit
 st.set_page_config(page_title="Modelo de Predicción USD Blue", layout="wide")
 st.title("📈 Modelo Econométrico para Predicción del Dólar Blue en Argentina")
 
@@ -22,8 +22,10 @@ plt.rcParams['axes.prop_cycle'] = plt.cycler(color=financial_palette)
 
 @st.cache_data(show_spinner=True)
 def cargar_datos(sheet_id, sheet_name):
+    # URL pública ejemplo con datos consolidados (cambia si tienes otro Google Sheet)
     url = f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRAXkmSc6If8DaPCGgDX3GfhlvInDlajIUIHAztGwZGcdTa6k3SNRq2jhKthYOnNLQAFEb6_t2XPw1Y/pub?output=csv"
     df = pd.read_csv(url)
+    
     fechas = ['FECHA_USD', 'FECHA_IPC', 'FECHA_RP', 'FECHA_RESERVAS', 'FECHA_M2', 'FECHA_BADLAR', 'FECHA_TC', 'FECHA_MEP']
     for col in fechas:
         df[col] = pd.to_datetime(df[col], errors='coerce', dayfirst=True)
@@ -66,14 +68,115 @@ def cargar_datos(sheet_id, sheet_name):
 
     return df_final
 
-# El resto de tus funciones queda igual (ajustar_modelo_regresion, mostrar_resumen_regresion, etc.)
+def ajustar_modelo_regresion(df):
+    df = df.copy()
+    
+    # Crear lags de variables
+    df['RESERVAS_lag1'] = df['RESERVAS'].shift(1)
+    df['BADLAR_lag1'] = df['BADLAR'].shift(1)
+    
+    df = df.dropna()
+
+    X = df[['IPC', 'RESERVAS_lag1', 'BADLAR_lag1', 'RP', 'MEP']]
+    y = df['USD_VENTA']
+
+    X_const = sm.add_constant(X)
+
+    split_idx = int(len(df) * 0.8)
+    X_train, X_test = X_const.iloc[:split_idx], X_const.iloc[split_idx:]
+    y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
+
+    model = sm.OLS(y_train, X_train).fit()
+    y_pred = model.predict(X_test)
+
+    mae = mean_absolute_error(y_test, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+    df_model = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
+
+    return model, df_model, X_test, y_test, y_pred, mae, rmse
+
+def mostrar_resumen_regresion(model):
+    st.subheader("📋 Resumen del Modelo")
+    st.text(model.summary())
+
+def mostrar_tests_diagnosticos(model):
+    st.subheader("🔍 Tests Diagnósticos")
+    resid = model.resid
+    exog = model.model.exog
+
+    # Breusch-Pagan (heterocedasticidad)
+    bp_test = het_breuschpagan(resid, exog)
+    st.write(f"Breusch-Pagan test p-value: {bp_test[1]:.4f}")
+
+    # Durbin-Watson (autocorrelación)
+    dw = durbin_watson(resid)
+    st.write(f"Durbin-Watson statistic: {dw:.4f}")
+
+    # Breusch-Godfrey (autocorrelación serial)
+    bg_test = acorr_breusch_godfrey(model, nlags=2)
+    st.write(f"Breusch-Godfrey test p-value: {bg_test[1]:.4f}")
+
+def mostrar_vif(X):
+    st.subheader("📊 VIF (Factor de Inflación de la Varianza)")
+    vif_data = pd.DataFrame()
+    vif_data["Variable"] = X.columns
+    vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+    st.dataframe(vif_data)
+
+def graficar_prediccion(y_test, y_pred):
+    st.subheader("📈 Predicción vs Real")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(y_test.index, y_test, label="Real", marker='o')
+    ax.plot(y_test.index, y_pred, label="Predicho", marker='x')
+    ax.legend()
+    ax.set_xlabel("Fecha")
+    ax.set_ylabel("USD Blue")
+    st.pyplot(fig)
+
+def proyectar_dolar(df_model, model, meses=12, alpha=0.1):
+    # Proyección simple usando último dato + coeficientes (sin input nuevo, para ejemplo)
+    st.subheader(f"🔮 Proyección a {meses} meses")
+
+    last_row = df_model.iloc[-1].copy()
+    last_date = df_model.index[-1] if isinstance(df_model.index, pd.DatetimeIndex) else pd.Timestamp.today()
+
+    coef = model.params
+    residual_std = np.std(model.resid)
+
+    fechas_futuras = [last_date + relativedelta(months=i) for i in range(1, meses+1)]
+    predicciones = []
+
+    for i, fecha in enumerate(fechas_futuras):
+        # Aquí asumo que las variables independientes permanecen constantes (puedes mejorar)
+        X_new = np.array([1,  # constante
+                          last_row.get('IPC', np.nan),
+                          last_row.get('RESERVAS_lag1', np.nan),
+                          last_row.get('BADLAR_lag1', np.nan),
+                          last_row.get('RP', np.nan),
+                          last_row.get('MEP', np.nan)
+                         ])
+        pred = np.dot(coef.values, X_new)
+        predicciones.append(pred)
+
+    df_pred = pd.DataFrame({
+        'Fecha': fechas_futuras,
+        'Predicción USD Blue': predicciones
+    })
+    df_pred.set_index('Fecha', inplace=True)
+    st.line_chart(df_pred)
+
+    return df_pred
+
+def mostrar_proyeccion(df_pred):
+    st.subheader("📅 Tabla de Proyección")
+    st.dataframe(df_pred)
 
 # --- INTERFAZ ---
 
 st.sidebar.header("Configuración")
 
-# Aquí pongo un Google Sheet público ejemplo con datos dummy, reemplazá por el tuyo
-example_sheet_id = "1QXXrVZ_qZGQosMREdKdSqGz0Lq3V-t_gIq-BMFoI-Rc"  
+example_sheet_id = "1QXXrVZ_qZGQosMREdKdSqGz0Lq3V-t_gIq-BMFoI-Rc"
 example_sheet_name = "Sheet1"
 
 sheet_id = st.sidebar.text_input("ID de Google Sheet", value=example_sheet_id)
@@ -99,13 +202,6 @@ mostrar_tests_diagnosticos(model)
 mostrar_vif(model.model.exog)
 
 graficar_prediccion(y_test, y_pred)
-tabla_errores_por_test_size(df_model, sm.add_constant(df_model[['IPC', 'RESERVAS_lag1', 'BADLAR_lag1', 'RP', 'MEP']]), df_model['USD_VENTA'])
 
-pred_summary = proyectar_dolar(df_model, model, meses=meses_proyectar, alpha=alpha_conf)
+pred_summary = proyectar_dolar(df_final, model, meses=meses_proyectar, alpha=alpha_conf)
 mostrar_proyeccion(pred_summary)
-
-st.markdown("""
----
-_App creada con Streamlit por ChatGPT para análisis y predicción económica._  
-Puedes ajustar las variables y extender el modelo para mejorar la proyección.
-""")
