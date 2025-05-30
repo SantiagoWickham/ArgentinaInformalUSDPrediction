@@ -118,10 +118,10 @@ def mostrar_tests_diagnosticos(model):
     st.write(f"Breusch-Godfrey test p-value: {bg_test[1]:.4f}")
 
 def mostrar_vif(X):
-    st.subheader("📊 VIF (Factor de Inflación de la Varianza)")
     vif_data = pd.DataFrame()
     vif_data["Variable"] = X.columns
     vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+    st.write("### VIF (Factor de Inflación de la Varianza)")
     st.dataframe(vif_data)
 
 def graficar_prediccion(y_test, y_pred):
@@ -199,7 +199,7 @@ model, df_model, X_test, y_test, y_pred, mae, rmse = ajustar_modelo_regresion(df
 
 mostrar_resumen_regresion(model)
 mostrar_tests_diagnosticos(model)
-mostrar_vif(model.model.exog)
+mostrar_vif(X_test)
 
 graficar_prediccion(y_test, y_pred)
 
