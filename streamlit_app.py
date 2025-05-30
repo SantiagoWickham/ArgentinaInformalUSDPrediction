@@ -56,40 +56,46 @@ if hoja_sel == "Datos Originales":
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
     plt.xticks(rotation=45)
 elif hoja_sel == "Prediccion_CP":
-    # Mostrar datos 6 meses atrás + predicción CP con IC
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
 
-    fecha_ultimo_real = df_hist_cp['MES'].max()
-    fecha_primera_pred = df['Mes'].min()
-    fila_primera = df[df['Mes'] == fecha_primera_pred].iloc[0]
+    # Último punto real
+    fecha_real = df_hist_cp['MES'].max()
+    valor_real = df_hist_cp[df_hist_cp['MES'] == fecha_real]['USD_VENTA'].values[0]
 
-    pred = fila_primera['USD_Predicho_CP']
-    ic_bajo = fila_primera['IC_Bajo_CP']
-    ic_alto = fila_primera['IC_Alto_CP']
+    # Primer punto de predicción
+    fecha_pred = df['Mes'].min()
+    fila_pred = df[df['Mes'] == fecha_pred].iloc[0]
 
-    # Interpolación triangular
-    fechas_interp = pd.date_range(start=fecha_ultimo_real, end=fecha_primera_pred, periods=5)
-    interp_central = np.linspace(df_hist_cp['USD_VENTA'].iloc[-1], pred, len(fechas_interp))
-    interp_bajo = np.linspace(df_hist_cp['USD_VENTA'].iloc[-1], ic_bajo, len(fechas_interp))
-    interp_alto = np.linspace(df_hist_cp['USD_VENTA'].iloc[-1], ic_alto, len(fechas_interp))
+    pred = fila_pred['USD_Predicho_CP']
+    ic_bajo = fila_pred['IC_Bajo_CP']
+    ic_alto = fila_pred['IC_Alto_CP']
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    # Series reales y predichas
+    # Serie real
     ax.plot(df_hist_cp['MES'], df_hist_cp['USD_VENTA'], label='USD Real', color='#2f4b7c', linewidth=2)
+
+    # Predicción
     ax.plot(df['Mes'], df['USD_Predicho_CP'], label='Predicción CP', color='#2f7c5e', linewidth=2, linestyle='--')
 
-    # Relleno triangular inicial
-    ax.fill_between(fechas_interp, interp_bajo, interp_alto, color='#2f7c5e', alpha=0.25, label='IC 95% (inicio)')
+    # Triángulo de apertura del IC
+    ax.fill_between(
+        [fecha_real, fecha_pred],
+        [valor_real, ic_bajo],
+        [valor_real, ic_alto],
+        color='#2f7c5e',
+        alpha=0.25,
+        label='IC 95% (transición)'
+    )
 
-    # Resto del intervalo de confianza
-    df_restante = df[df['Mes'] > fecha_primera_pred]
+    # Resto del IC (predicción)
+    df_restante = df[df['Mes'] > fecha_pred]
     ax.fill_between(df_restante['Mes'], df_restante['IC_Bajo_CP'], df_restante['IC_Alto_CP'],
                     color='#2f7c5e', alpha=0.25)
 
-    # Estética del gráfico
+    # Estética
     ax.set_title("Predicción Corto Plazo: USD Blue", fontsize=16, weight='bold')
     ax.set_xlabel("Fecha", fontsize=12)
     ax.set_ylabel("Precio (ARS)", fontsize=12)
