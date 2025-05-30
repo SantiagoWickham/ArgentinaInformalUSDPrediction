@@ -64,17 +64,28 @@ elif hoja_sel == "Prediccion_CP":
     # Fechas clave
     fecha_ultimo_real = df_hist_cp['MES'].max()
     fecha_primera_pred = df['Mes'].min()
+    fila_primera = df[df['Mes'] == fecha_primera_pred].iloc[0]
 
     # Valores para la primera predicción
     fila_primera = df[df['Mes'] == fecha_primera_pred].iloc[0]
-    pred_central = fila_primera['USD_Predicho_CP']
+    pred = fila_primera['USD_Predicho_CP']
     ic_bajo = fila_primera['IC_Bajo_CP']
     ic_alto = fila_primera['IC_Alto_CP']
 
-    # Generar puntos intermedios para efecto "triángulo"
-    fechas_triangulo = pd.to_datetime([fecha_ultimo_real, fecha_primera_pred])
-    valores_bajo = [pred_central, ic_bajo]
-    valores_alto = [pred_central, ic_alto]
+   # Interpolación: N puntos entre última fecha real y primera predicción
+    n_puntos = 10
+    fechas_interp = pd.date_range(start=fecha_ultimo_real, end=fecha_primera_pred, periods=n_puntos)
+
+    # Límites del intervalo de confianza interpolado: se abren desde el punto central
+    valores_bajo_interp = np.linspace(pred, ic_bajo, n_puntos)
+    valores_alto_interp = np.linspace(pred, ic_alto, n_puntos)
+
+    # Relleno triangular entre el último punto real y el primer punto de predicción
+    ax.fill_between(fechas_interp, valores_bajo_interp, valores_alto_interp, color='#2f7c5e', alpha=0.25)
+
+    # Relleno normal a partir del segundo mes en adelante
+    df_resto = df[df['Mes'] > fecha_primera_pred]
+    ax.fill_between(df_resto['Mes'], df_resto['IC_Bajo_CP'], df_resto['IC_Alto_CP'], color='#2f7c5e', alpha=0.25, label='IC 95%')
 
     # Gráfico
     fig, ax = plt.subplots(figsize=(10, 6))
