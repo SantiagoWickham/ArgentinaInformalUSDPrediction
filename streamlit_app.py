@@ -83,28 +83,31 @@ COLOR_PALETA = {
 
 # Estilos layout Plotly
 line_color = "#f0f0f0" if modo_oscuro else "#888"  # claro en modo oscuro, gris en modo claro
-def layout_template(title):
+def layout_template(title, modo_oscuro):
+    line_color = "#f0f0f0" if modo_oscuro else "#888"
+    PALETA_ACTUAL = COLOR_PALETA_OSCURO if modo_oscuro else COLOR_PALETA_CLARO
+
     return dict(
         title=title,
-    xaxis=dict(
-        title="Fecha",
-        showgrid=True,
-        zeroline=False,
-        showline=True,
-        linewidth=1,
-        linecolor=line_color,
-        ticks="outside",
-        tickformat="%Y-%m",
-        tickangle=45,
-        dtick="M3"
+        xaxis=dict(
+            title="Fecha",
+            showgrid=True,
+            zeroline=False,
+            showline=True,
+            linewidth=1,
+            linecolor=line_color,
+            ticks="outside",
+            tickformat="%Y-%m",
+            tickangle=45,
+            dtick="M3"
         ),
-    yaxis=dict(
-        title="Precio (ARS)",
-        showgrid=True,
-        zeroline=False,
-        showline=True,
-        linewidth=1,
-        linecolor=line_color
+        yaxis=dict(
+            title="Precio (ARS)",
+            showgrid=True,
+            zeroline=False,
+            showline=True,
+            linewidth=1,
+            linecolor=line_color
         ),
         plot_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo_oscuro else COLOR_PALETA["fondo_claro"],
         paper_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo_oscuro else COLOR_PALETA["fondo_claro"],
@@ -115,7 +118,6 @@ def layout_template(title):
         ),
         hovermode='x unified'
     )
-
 # Generar gráfico según hoja seleccionada con Plotly
 fig = go.Figure()
 
