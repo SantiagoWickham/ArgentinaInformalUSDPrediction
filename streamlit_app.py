@@ -68,49 +68,73 @@ with st.sidebar:
 data = {hoja: cargar_hoja(SHEET_ID, hoja) for hoja in HOJAS}
 df = data[hoja_sel]
 
-# Paleta accesible WCAG AA/AAA (azul-verde)
-COLOR_PALETA = {
+# Paletas para modo claro y modo oscuro (colores para líneas, textos, fondo, etc)
+PALETA_CLARA = {
     "real": "#004165",
     "predicho_cp": "#2a9d8f",
     "predicho_lp": "#a3d2ca",
     "intervalo_confianza": "rgba(163, 210, 202, 0.3)",
     "error": "#e76f51",
-    "fondo_claro": "#f9f9f9",
-    "fondo_oscuro": "#1e1e1e",
-    "texto_claro": "#000000",
-    "texto_oscuro": "#f0f0f0"
+    "fondo": "#f9f9f9",
+    "texto": "#000000",
+    "lineas_ejes": "#888888",
+    "grid": "#dddddd"
 }
+
+PALETA_OSCURA = {
+    "real": "#7FDBFF",           # celeste claro
+    "predicho_cp": "#39CCCC",   # turquesa
+    "predicho_lp": "#3D9970",   # verde oscuro
+    "intervalo_confianza": "rgba(61, 153, 112, 0.3)",
+    "error": "#FF4136",          # rojo brillante
+    "fondo": "#1e1e1e",
+    "texto": "#f0f0f0",
+    "lineas_ejes": "#bbbbbb",
+    "grid": "#444444"
+}
+
+# Seleccionar paleta según modo
+COLOR_PALETA = PALETA_OSCURA if modo_oscuro else PALETA_CLARA
 
 # Estilos layout Plotly
 def layout_template(title):
     return dict(
-        title=title,
+        title=dict(
+            text=title,
+            font=dict(color=COLOR_PALETA["texto"], size=22),
+            x=0.5,
+            xanchor='center'
+        ),
         xaxis=dict(
             title="Fecha",
             showgrid=True,
+            gridcolor=COLOR_PALETA["grid"],
             zeroline=False,
             showline=True,
-            linewidth=1,
-            linecolor="#888",
+            linecolor=COLOR_PALETA["lineas_ejes"],
             ticks="outside",
             tickformat="%Y-%m",
             tickangle=45,
-            dtick="M3"
+            dtick="M3",
+            tickfont=dict(color=COLOR_PALETA["texto"])
         ),
         yaxis=dict(
             title="Precio (ARS)",
             showgrid=True,
+            gridcolor=COLOR_PALETA["grid"],
             zeroline=False,
             showline=True,
-            linewidth=1,
-            linecolor="#888"
+            linecolor=COLOR_PALETA["lineas_ejes"],
+            tickfont=dict(color=COLOR_PALETA["texto"]),
+            titlefont=dict(color=COLOR_PALETA["texto"])
         ),
-        plot_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo_oscuro else COLOR_PALETA["fondo_claro"],
-        paper_bgcolor=COLOR_PALETA["fondo_oscuro"] if modo_oscuro else COLOR_PALETA["fondo_claro"],
-        font=dict(color=COLOR_PALETA["texto_oscuro"] if modo_oscuro else COLOR_PALETA["texto_claro"]),
+        plot_bgcolor=COLOR_PALETA["fondo"],
+        paper_bgcolor=COLOR_PALETA["fondo"],
+        font=dict(color=COLOR_PALETA["texto"]),
         legend=dict(
             bgcolor='rgba(0,0,0,0)',
-            bordercolor='rgba(0,0,0,0)'
+            bordercolor='rgba(0,0,0,0)',
+            font=dict(color=COLOR_PALETA["texto"])
         ),
         hovermode='x unified'
     )
@@ -210,7 +234,7 @@ elif hoja_sel == "Real vs Predicho":
     # Real y Predicho
     fig.add_trace(go.Scatter(
         x=df['Fecha'],
-        y=df['USD_Real'],
+        y=df['Real'],
         mode='lines+markers',
         name='USD Real',
         line=dict(color=COLOR_PALETA["real"], width=3),
@@ -219,7 +243,7 @@ elif hoja_sel == "Real vs Predicho":
     ))
     fig.add_trace(go.Scatter(
         x=df['Fecha'],
-        y=df['USD_Predicho'],
+        y=df['Predicho'],
         mode='lines+markers',
         name='USD Predicho',
         line=dict(color=COLOR_PALETA["predicho_cp"], width=3, dash='dash'),
@@ -229,31 +253,16 @@ elif hoja_sel == "Real vs Predicho":
 
     # Errores (residuos)
     if mostrar_residuos:
-        residuos = df['USD_Real'] - df['USD_Predicho']
         fig.add_trace(go.Bar(
             x=df['Fecha'],
-            y=residuos,
-            name='Error de predicción (residuo)',
+            y=df['Error'],
+            name='Error (Real - Predicho)',
             marker_color=COLOR_PALETA["error"],
             opacity=0.6,
-            yaxis='y2',
             hovertemplate='%{x|%Y-%m}: %{y:.2f} ARS<extra></extra>'
         ))
-        # Añadir segundo eje Y para errores
-        fig.update_layout(
-            yaxis2=dict(
-                title='Error (Residuo)',
-                overlaying='y',
-                side='right',
-                showgrid=False,
-                zeroline=True,
-                zerolinecolor='rgba(0,0,0,0.3)',
-                zerolinewidth=1,
-                tickformat='.2f',
-                rangemode='tozero'
-            )
-        )
-    fig.update_layout(layout_template("Comparación: Real vs Predicho"))
+
+    fig.update_layout(layout_template("Comparación Real vs Predicción"))
 
 # Mostrar gráfico
 st.plotly_chart(fig, use_container_width=True)
