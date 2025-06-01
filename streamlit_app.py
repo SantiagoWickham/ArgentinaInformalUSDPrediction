@@ -28,7 +28,7 @@ SHEET_ID = "1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X"
 HOJAS = ["Datos Originales", "Prediccion_CP", "Prediccion_LP", "Real vs Predicho"]
 
 # Función para cargar hojas
-@st.cache_data(show_spinner=True)
+# @st.cache_data(show_spinner=True)
 def cargar_hoja(sheet_id, sheet_name):
     sheet_name_encoded = urllib.parse.quote(sheet_name)
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_encoded}"
