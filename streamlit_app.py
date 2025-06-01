@@ -157,7 +157,7 @@ elif hoja_sel == "Prediccion_CP":
     ))
     # Intervalo confianza
     fig.add_trace(go.Scatter(
-        x=pd.concat([df['Mes'], df['Mes'][::-10]]),
+        x=pd.concat([df['Mes'], df['Mes'][::-1]]),
         y=pd.concat([df['IC_Bajo_CP'], df['IC_Alto_CP'][::-1]]),
         fill='toself',
         fillcolor=COLOR_PALETA["intervalo_confianza"],
