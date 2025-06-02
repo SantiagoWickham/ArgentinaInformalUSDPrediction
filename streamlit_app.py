@@ -169,7 +169,7 @@ if hoja_sel == "Datos Originales":
     fig.update_layout(**layout_template("USD Blue histórico (desde 2020)", modo_oscuro))
 
 elif hoja_sel == "Prediccion mirada CP":
-    df_hist = data["Datos Originales"]
+    df_hist = cargar_hoja(SHEET_ID, "Datos Originales")
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
     # Real
@@ -207,7 +207,7 @@ elif hoja_sel == "Prediccion mirada CP":
     fig.update_layout(**layout_template("Predicción a Corto Plazo", modo_oscuro))
 
 elif hoja_sel == "Prediccion mirada LP":
-    df_hist = data["Datos Originales"]
+    df_hist = cargar_hoja(SHEET_ID, "Datos Originales")
     df_hist_lp = df_hist[df_hist['MES'] >= '2020-01-01']
     # Real
     fig.add_trace(go.Scatter(
