@@ -103,10 +103,6 @@ if hoja_sel in HOJAS:
 elif hoja_sel in HOJAS_DIARIAS:
     # Carga la(s) hoja(s) de SHEET_ID_DIARIA
     df = cargar_hoja_diaria(SHEET_ID_DIARIA, hoja_sel)
-else:
-    # (Opcional) Por si hay algún nombre de hoja inesperado
-    st.error(f"No se encontró la hoja “{hoja_sel}” en ninguno de los IDs configurados.")
-    st.stop()
 
 # Paleta accesible WCAG AA/AAA (azul-verde)
 COLOR_PALETA = {
