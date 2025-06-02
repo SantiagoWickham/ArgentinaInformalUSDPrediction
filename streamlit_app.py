@@ -341,7 +341,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
 st.plotly_chart(fig, use_container_width=True)
 
 # Si la hoja seleccionada es la diaria, cargamos y mostramos la tabla "Resumen"
-if hoja_sel == "Prediccion vs Real Últimos 30 días":
+if hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
     # 1) Cargamos la hoja Resumen (que está en el mismo SHEET_ID_DIARIA)
     df_resumen = cargar_hoja_diaria(SHEET_ID_DIARIA, "Resumen")
     
