@@ -37,7 +37,7 @@ def cargar_hoja(sheet_id, sheet_name):
     if sheet_name == "Datos Originales":
         df['MES'] = pd.to_datetime(df['MES'], errors='coerce')
         df = df.sort_values('MES')
-    elif sheet_name in ["Prediccion mirada CP", "Prediccion_LP"]:
+    elif sheet_name in ["Prediccion mirada CP", "Prediccion mirada LP"]:
         df['Mes'] = pd.to_datetime(df['Mes'], errors='coerce')
         df = df.sort_values('Mes')
     elif sheet_name == "Real vs Predicho":
@@ -58,9 +58,12 @@ def cargar_hoja_diaria(sheet_id, sheet_name):
 
     # Formateo de fechas: chequeamos si la columna viene como "FECHA" o como "Fecha"
     if sheet_name == "Prediccion Diaria vs Real Últimos 30 días":
-        if 'FECHA' in df.columns:
-            df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
-            df = df.sort_values('FECHA')
+        if 'Fecha' in df.columns:
+            df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+            df = df.sort_values('Fecha')
+        elif sheet_name == "Prediccion Diaria vs Real Historica":
+            df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+            df = df.sort_values('Fecha')
         elif 'Fecha' in df.columns:
             df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
             df = df.sort_values('Fecha')
@@ -97,6 +100,8 @@ with st.sidebar:
         mostrar_residuos = st.checkbox("Mostrar errores de predicción (residuos)", value=False)
     # Opción para mostrar errores (residuos) solo para "Prediccion Diaria vs Real Últimos 30 días"
     if hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
+        mostrar_residuos = st.checkbox("Mostrar errores de predicción diaria (residuos)", value=False)
+    if hoja_sel == "Prediccion Diaria vs Real Historica":
         mostrar_residuos = st.checkbox("Mostrar errores de predicción diaria (residuos)", value=False)
 # Carga datos según la hoja seleccionada
 if hoja_sel in HOJAS:
@@ -302,6 +307,53 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
         y=df_extra['Real'],
         mode='lines+markers',
         name='Prediccion Diaria vs Real Últimos 30 días',
+        line=dict(color=COLOR_PALETA["real"], width=3),
+        marker=dict(size=6),
+        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+    ))
+    fig.add_trace(go.Scatter(
+        x=df_extra['Fecha'],
+        y=df_extra['Predicción'],
+        mode='lines+markers',
+        name='USD Predicho (Extra)',
+        line=dict(color=COLOR_PALETA["predicho_cp"], width=3, dash='dash'),
+        marker=dict(size=6),
+        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+    ))
+
+    # Errores (residuos)
+    if mostrar_residuos:
+        residuos = df_extra['Real'] - df_extra['Predicción']
+        fig.add_trace(go.Bar(
+            x=df_extra['Fecha'],
+            y=residuos,
+            name='Error de predicción (residuo)',
+            marker_color=COLOR_PALETA["error"],
+            opacity=0.6,
+            yaxis='y2',
+            hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+        ))
+        fig.update_layout(
+            **layout_template("USD Real vs Predicho (Extra)", modo_oscuro),
+            yaxis2=dict(
+                title='Error (Residuo)',
+                overlaying='y',
+                side='right',
+                showgrid=False,
+                showline=True,
+                linecolor='gray'
+            )
+        )
+        
+    elif hoja_sel == "Prediccion Diaria vs Real Historica":
+    df_extra = cargar_hoja_diaria(SHEET_ID_DIARIA, "Prediccion Diaria vs Real Historica")
+
+    # Prediccion vs Real Histórica
+    fig.add_trace(go.Scatter(
+        x=df_extra['Fecha'],
+        y=df_extra['Real'],
+        mode='lines+markers',
+        name='Prediccion Diaria vs Real Histórica',
         line=dict(color=COLOR_PALETA["real"], width=3),
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
