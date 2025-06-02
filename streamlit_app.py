@@ -61,13 +61,16 @@ def cargar_hoja_diaria(sheet_id, sheet_name):
         df = df.sort_values('FECHA')
     return df
 
+# Combinar HOJAS y HOJAS_DIARIAS
+HOJAS_COMBINADAS = HOJAS + HOJAS_DIARIAS
+
 # Sidebar
 with st.sidebar:
     st.image("https://raw.githubusercontent.com/SantiagoWickham/ArgentinaInformalUSDPrediction/main/logo.jpg", width=100)
     st.header("⚙️ Configuración")
     
     # Selección hoja
-    hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", HOJAS, HOJAS_DIARIAS)
+    hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", HOJAS_COMBINADAS)
     
     # Modo oscuro/claro
     modo_oscuro = st.checkbox("Modo oscuro", value=False)
