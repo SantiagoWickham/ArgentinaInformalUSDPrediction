@@ -366,7 +366,7 @@ if hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
     # 4) Creamos dos columnas y en cada una un st.metric
     col1, col2 = st.columns(2, gap="large")
     col1.metric(label="MAE últimos 30 días", value=mae_val)
-    col2.metric(label="Predicción mañana (USD₿ Blue)", value=prediccion_val)
+    col2.metric(label="Predicción mañana (U$D/AR$ Blue)", value=prediccion_val)
 
 # Botones de descarga CSV y PNG
 import io
