@@ -56,21 +56,14 @@ def cargar_hoja_diaria(sheet_id, sheet_name):
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_encoded}"
     df = pd.read_csv(url)
 
-    # Formateo de fechas: chequeamos si la columna viene como "FECHA" o como "Fecha"
-    if sheet_name == "Prediccion Diaria vs Real Últimos 30 días":
-        if 'Fecha' in df.columns:
-            df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
-            df = df.sort_values('Fecha')
-        elif sheet_name == "Prediccion Diaria vs Real Historica":
-            df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
-            df = df.sort_values('Fecha')
-        elif 'Fecha' in df.columns:
-            df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
-            df = df.sort_values('Fecha')
-        else:
-            # En caso de que el encabezado cambie nuevamente, mostramos un aviso
-            st.error(f"No se encontró ninguna columna de fecha en la hoja “{sheet_name}”.")
-            st.stop()
+    # Si existe columna "Fecha", la convertimos y ordenamos.
+    if 'Fecha' in df.columns:
+        df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+        df = df.sort_values('Fecha')
+    else:
+        # Si en el futuro cambia el encabezado, alertamos.
+        st.error(f"No se encontró ninguna columna de fecha en la hoja “{sheet_name}”.")
+        st.stop()
 
     return df
 
@@ -344,16 +337,16 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
                 linecolor='gray'
             )
         )
+    else:
+        fig.update_layout(**layout_template("Prediccion vs Real Últimos 30 días", modo_oscuro))
         
 elif hoja_sel == "Prediccion Diaria vs Real Historica":
     df_extra = cargar_hoja_diaria(SHEET_ID_DIARIA, "Prediccion Diaria vs Real Historica")
-
-    # Prediccion vs Real Histórica
     fig.add_trace(go.Scatter(
         x=df_extra['Fecha'],
         y=df_extra['Real'],
         mode='lines+markers',
-        name='Prediccion Diaria vs Real Histórica',
+        name='Real (USD/ARS Blue)',
         line=dict(color=COLOR_PALETA["real"], width=3),
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
@@ -362,13 +355,11 @@ elif hoja_sel == "Prediccion Diaria vs Real Historica":
         x=df_extra['Fecha'],
         y=df_extra['Predicción'],
         mode='lines+markers',
-        name='USD Predicho (Extra)',
+        name='Predicción Diaria',
         line=dict(color=COLOR_PALETA["predicho_cp"], width=3, dash='dash'),
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
     ))
-
-    # Errores (residuos)
     if mostrar_residuos:
         residuos = df_extra['Real'] - df_extra['Predicción']
         fig.add_trace(go.Bar(
@@ -392,7 +383,8 @@ elif hoja_sel == "Prediccion Diaria vs Real Historica":
             )
         )
     else:
-        fig.update_layout(**layout_template("Prediccion vs Real Últimos 30 días", modo_oscuro))
+        # Título corregido para cuando NO se muestran residuos
+        fig.update_layout(**layout_template("Predicción Diaria vs Real Histórica", modo_oscuro))
         
 # Mostrar gráfico
 st.plotly_chart(fig, use_container_width=True)
