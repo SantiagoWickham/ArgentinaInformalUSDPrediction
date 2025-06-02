@@ -364,7 +364,7 @@ if hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
             prediccion_val = f"{float(val):.2f} ARS"  # dos decimales + unidad
 
     # 3) Mostramos un encabezado
-    st.markdown("### 📋 Resumen de la predicción diaria")
+    st.markdown("### Resumen de la predicción diaria")
 
     # 4) Creamos dos columnas y en cada una un st.metric
     col1, col2 = st.columns(2, gap="large")
@@ -411,6 +411,7 @@ with st.expander("📖 Sobre el modelo Diario"):
     - Riesgo País  
     - Tipo de cambio oficial (TC)  
     - Dólar MEP  
+    
     Cada variable se resume en rezagos (lags) de 1, 2 y 3 días.
 
     **Supuestos clave:**  
@@ -433,7 +434,7 @@ with st.expander("📖 Sobre el modelo Diario"):
     
 # Footer
 st.markdown("---")
-st.markdown("© 2025 Santiago Wickham | Proyecto económico - Datos: Fuentes oficiales y Google Sheets")
+st.markdown("© 2025 Santiago Wickham | Proyecto económico - Datos: Fuentes oficiales: INDEC, BCRA")
 st.markdown(""" 
 
 🔗 [LinkedIn](https://www.linkedin.com/in/santiagowickham/)  
