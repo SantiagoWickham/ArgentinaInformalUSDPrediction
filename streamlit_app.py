@@ -86,7 +86,10 @@ with st.sidebar:
     modo_oscuro = st.checkbox("Modo oscuro", value=False)
     
     st.markdown("---")
-    st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X)")
+    if hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
+        st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1mCCiSDOdbp2lm90nnAAeQ9dBRO3Mh8_v/edit?gid=436285488#gid=436285488)")
+    else:
+        st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X)")
 
     # Opción para mostrar errores (residuos) solo para "Real vs Predicho"
     mostrar_residuos = False
