@@ -45,6 +45,22 @@ def cargar_hoja(sheet_id, sheet_name):
         df = df.sort_values('Fecha')
     return df
 
+# ID Google Sheets para datos diarios
+SHEET_ID_DIARIA = "1mCCiSDOdbp2lm90nnAAeQ9dBRO3Mh8_v"
+HOJAS_DIARIAS = ["Prediccion vs Real Últimos 30 días"]
+
+# Función para cargar hoja diaria
+# @st.cache_data(show_spinner=True)
+def cargar_hoja_diaria(sheet_id, sheet_name):
+    sheet_name_encoded = urllib.parse.quote(sheet_name)
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_encoded}"
+    df = pd.read_csv(url)
+    # Formateo fechas
+    if sheet_name == "Prediccion vs Real Últimos 30 días":
+        df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
+        df = df.sort_values('FECHA')
+    return df
+
 # Sidebar
 with st.sidebar:
     st.image("https://raw.githubusercontent.com/SantiagoWickham/ArgentinaInformalUSDPrediction/main/logo.jpg", width=100)
@@ -251,9 +267,55 @@ elif hoja_sel == "Real vs Predicho":
                 linecolor='gray'
             )
         )
-    else:
-        fig.update_layout(**layout_template("USD Real vs Predicho", modo_oscuro))
+elif hoja_sel == "Prediccion vs Real Últimos 30 días":
+    df_extra = data["Extra"]  # Asegurate de que "Extra" esté bien escrito según el nombre de la hoja
 
+    # Prediccion vs Real Últimos 30 días
+    fig.add_trace(go.Scatter(
+        x=df_extra['Fecha'],
+        y=df_extra['Real'],
+        mode='lines+markers',
+        name='USD Real (Extra)',
+        line=dict(color=COLOR_PALETA["real"], width=3),
+        marker=dict(size=6),
+        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+    ))
+    fig.add_trace(go.Scatter(
+        x=df_extra['Fecha'],
+        y=df_extra['Predicción'],
+        mode='lines+markers',
+        name='USD Predicho (Extra)',
+        line=dict(color=COLOR_PALETA["predicho_cp"], width=3, dash='dash'),
+        marker=dict(size=6),
+        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+    ))
+
+    # Errores (residuos)
+    if mostrar_residuos:
+        residuos = df_extra['Real'] - df_extra['Predicción']
+        fig.add_trace(go.Bar(
+            x=df_extra['Fecha'],
+            y=residuos,
+            name='Error de predicción (residuo)',
+            marker_color=COLOR_PALETA["error"],
+            opacity=0.6,
+            yaxis='y2',
+            hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+        ))
+        fig.update_layout(
+            **layout_template("USD Real vs Predicho (Extra)", modo_oscuro),
+            yaxis2=dict(
+                title='Error (Residuo)',
+                overlaying='y',
+                side='right',
+                showgrid=False,
+                showline=True,
+                linecolor='gray'
+            )
+        )
+    else:
+        fig.update_layout(**layout_template("Prediccion vs Real Últimos 30 días", modo_oscuro))
+        
 # Mostrar gráfico
 st.plotly_chart(fig, use_container_width=True)
 
