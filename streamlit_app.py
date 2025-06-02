@@ -92,7 +92,9 @@ with st.sidebar:
     mostrar_residuos = False
     if hoja_sel == "Real vs Predicho":
         mostrar_residuos = st.checkbox("Mostrar errores de predicción (residuos)", value=False)
-
+    # Opción para mostrar errores (residuos) solo para "Prediccion Diaria vs Real Últimos 30 días"
+    if hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
+        mostrar_residuos = st.checkbox("Mostrar errores de predicción diaria (residuos_diarios)", value=False)
 # Carga datos según la hoja seleccionada
 if hoja_sel in HOJAS:
     # Carga cualquiera de las hojas de SHEET_ID original
