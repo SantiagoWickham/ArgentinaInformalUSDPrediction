@@ -390,7 +390,7 @@ with st.expander("📖 Sobre el modelo Mensual"):
       - Independencia y homocedasticidad de residuos.
       - Modelo one-month-ahead (predicción a un mes).
 
-    El modelo se ajusta con datos históricos mensuales, y se valida con métricas de error  
+    El modelo se ajusta con datos históricos mensuales, y se valida con métricas de error      
     como MAE y RMSE. Las predicciones de largo plazo asumen estabilidad en las variables macro.
     """)
 # Sección colapsable "Sobre el modelo Diario"
