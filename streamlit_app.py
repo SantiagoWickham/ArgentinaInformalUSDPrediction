@@ -83,9 +83,17 @@ with st.sidebar:
     if hoja_sel == "Real vs Predicho":
         mostrar_residuos = st.checkbox("Mostrar errores de predicción (residuos)", value=False)
 
-# Carga datos
-data = {hoja: cargar_hoja(SHEET_ID, hoja) for hoja in HOJAS}
-df = data[hoja_sel]
+# Carga datos según la hoja seleccionada
+if hoja_sel in HOJAS:
+    # Carga cualquiera de las hojas de SHEET_ID original
+    df = cargar_hoja(SHEET_ID, hoja_sel)
+elif hoja_sel in HOJAS_DIARIAS:
+    # Carga la(s) hoja(s) de SHEET_ID_DIARIA
+    df = cargar_hoja_diaria(SHEET_ID_DIARIA, hoja_sel)
+else:
+    # (Opcional) Por si hay algún nombre de hoja inesperado
+    st.error(f"No se encontró la hoja “{hoja_sel}” en ninguno de los IDs configurados.")
+    st.stop()
 
 # Paleta accesible WCAG AA/AAA (azul-verde)
 COLOR_PALETA = {
