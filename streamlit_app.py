@@ -345,7 +345,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
             )
         )
         
-    elif hoja_sel == "Prediccion Diaria vs Real Historica":
+elif hoja_sel == "Prediccion Diaria vs Real Historica":
     df_extra = cargar_hoja_diaria(SHEET_ID_DIARIA, "Prediccion Diaria vs Real Historica")
 
     # Prediccion vs Real Histórica
