@@ -340,6 +340,15 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
 # Mostrar gráfico
 st.plotly_chart(fig, use_container_width=True)
 
+# Si la hoja seleccionada es la diaria, cargamos y mostramos la tabla "Resumen"
+if hoja_sel == "Prediccion vs Real Últimos 30 días":
+    # 1) Cargamos la hoja Resumen (que está en el mismo SHEET_ID_DIARIA)
+    df_resumen = cargar_hoja_diaria(SHEET_ID_DIARIA, "Resumen")
+    
+    # 2) Título y presentación
+    st.markdown("### 📋 Resumen de la predicción diaria")
+    st.table(df_resumen)
+
 # Botones de descarga CSV y PNG
 import io
 csv_buffer = df.to_csv(index=False).encode("utf-8")
