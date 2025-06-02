@@ -87,7 +87,7 @@ with st.sidebar:
     
     st.markdown("---")
     if hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
-        st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1mCCiSDOdbp2lm90nnAAeQ9dBRO3Mh8_v/edit?gid=436285488#gid=436285488)")
+        st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1mCCiSDOdbp2lm90nnAAeQ9dBRO3Mh8_v)")
     else:
         st.markdown("📊 [Fuente de datos](https://docs.google.com/spreadsheets/d/1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X)")
 
