@@ -343,13 +343,30 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
 st.plotly_chart(fig, use_container_width=True)
 
 # Si la hoja seleccionada es la diaria, cargamos y mostramos la tabla "Resumen"
-if hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
-    # 1) Cargamos la hoja Resumen (que está en el mismo SHEET_ID_DIARIA)
+if hoja_sel == "Prediccion vs Real Últimos 30 días":
+    # 1) Cargamos la hoja "Resumen"
     df_resumen = cargar_hoja_diaria(SHEET_ID_DIARIA, "Resumen")
-    
-    # 2) Título y presentación
+
+    # 2) Extraemos los dos valores que nos interesan
+    mae_val = None
+    prediccion_val = None
+
+    # Recorremos las filas y guardamos valores según la descripción
+    for idx, row in df_resumen.iterrows():
+        desc = row["Descripción"]
+        val = row["Valor"]
+        if desc == "MAE últimos 30 días":
+            mae_val = f"{float(val):.4f}"  # formateamos con cuatro decimales
+        elif desc.startswith("Predicción para mañana"):
+            prediccion_val = f"{float(val):.2f} ARS"  # dos decimales + unidad
+
+    # 3) Mostramos un encabezado
     st.markdown("### 📋 Resumen de la predicción diaria")
-    st.table(df_resumen)
+
+    # 4) Creamos dos columnas y en cada una un st.metric
+    col1, col2 = st.columns(2, gap="large")
+    col1.metric(label="MAE últimos 30 días", value=mae_val)
+    col2.metric(label="Predicción mañana (USD₿ Blue)", value=prediccion_val)
 
 # Botones de descarga CSV y PNG
 import io
