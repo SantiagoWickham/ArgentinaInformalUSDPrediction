@@ -396,30 +396,41 @@ with st.expander("📖 Sobre el modelo Mensual"):
     El modelo se ajusta con datos históricos mensuales, y se valida con métricas de error  
     como MAE y RMSE. Las predicciones de largo plazo asumen estabilidad en las variables macro.
     """)
-
 # Sección colapsable "Sobre el modelo Diario"
 with st.expander("📖 Sobre el modelo Diario"):
     st.markdown("""
-    **Metodología del modelo econométrico:**
+    **Metodología del modelo econométrico**
 
-    -**Tipo de modelo:** Random Forest Regressor (bosques aleatorios) para predicción diaria.
-    -**Variables incluidas:** IPC, Reservas Internacionales, BADLAR, Riesgo País, tipo de cambio oficial (TC) y 
-        dólar MEP, todas resumidas en rezagos (lags) de 1, 2 y 3 días.
-    -**Supuestos clave:**
-        No se asume linealidad estricta: el Random Forest captura relaciones no lineales entre los rezagos de 
-        las variables macro y el precio del USD blue.
-        Se considera que las variables macroeconómicas (IPC, Reservas, BADLAR, Riesgo País, TC, MEP) son 
-        exógenas respecto al USD blue en el horizonte diario.
-        Aunque no exige homocedasticidad ni normalidad de residuos, se espera que las observaciones estén 
-        suficientemente representadas en el conjunto de entrenamiento para evitar sesgos.
-        Modelo one-day-ahead (predicción al día siguiente), utilizando tres rezagos para cada variable.
-        El modelo se entrena con datos históricos diarios consolidados (último valor disponible por día) 
-        y se ajustan hiperparámetros mediante búsqueda aleatoria con validación temporal (TimeSeriesSplit). 
-        La validación se realiza calculando MAE (error absoluto medio) in‐sample y sobre los últimos 30 días. 
-        Para predicciones a largo plazo diario se asume cierta estabilidad en la dinámica de las variables macro,
-        aunque el Random Forest permite adaptar patrones no lineales cambiantes.
+    **Tipo de modelo:**  
+    Random Forest Regressor (bosques aleatorios) para predicción diaria.
+
+    **Variables incluidas:**  
+    - IPC  
+    - Reservas Internacionales  
+    - BADLAR  
+    - Riesgo País  
+    - Tipo de cambio oficial (TC)  
+    - Dólar MEP  
+    Cada variable se resume en rezagos (lags) de 1, 2 y 3 días.
+
+    **Supuestos clave:**  
+    1. _No se asume linealidad estricta._ El Random Forest captura relaciones no lineales entre los rezagos de las variables macro y el precio del USD blue.  
+    2. _Variables macroeconómicas exógenas._ Se considera que IPC, Reservas, BADLAR, Riesgo País, TC y MEP no son afectadas por el USD blue en el horizonte diario.  
+    3. _No exige homocedasticidad ni normalidad de residuos._ Sin embargo, se necesita que las observaciones estén bien representadas en el conjunto de entrenamiento para evitar sesgos.  
+    4. _Modelo one-day-ahead._ Predicción al día siguiente usando tres rezagos de cada variable.
+
+    **Proceso de entrenamiento y validación:**  
+    - Se entrena con datos históricos diarios consolidados (último valor disponible por día).  
+    - Hiperparámetros ajustados mediante búsqueda aleatoria con validación temporal (TimeSeriesSplit).  
+    - Métrica principal de evaluación: MAE (error absoluto medio), calculado in‐sample y sobre los últimos 30 días.  
+
+    **Predicciones a largo plazo (diario):**  
+    - Se asume cierta estabilidad en la dinámica de las variables macro.  
+    - El Random Forest permite adaptarse a patrones no lineales cambiantes en el tiempo.
+
+    ---
     """)
-
+    
 # Footer
 st.markdown("---")
 st.markdown("© 2025 Santiago Wickham | Proyecto económico - Datos: Fuentes oficiales y Google Sheets")
