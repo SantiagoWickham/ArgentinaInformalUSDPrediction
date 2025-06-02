@@ -301,7 +301,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
         x=df_extra['Fecha'],
         y=df_extra['Real'],
         mode='lines+markers',
-        name='USD Real (Extra)',
+        name='Prediccion Diaria vs Real Últimos 30 días',
         line=dict(color=COLOR_PALETA["real"], width=3),
         marker=dict(size=6),
         hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
