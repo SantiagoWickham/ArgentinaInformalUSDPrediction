@@ -272,7 +272,7 @@ elif hoja_sel == "Real vs Predicho":
         ))
         # Añadir segundo eje Y para errores
         fig.update_layout(
-            **layout_template("USD Real vs Predicho", modo_oscuro),
+            **layout_template("USD Real vs Predicho Mensual con errores", modo_oscuro),
             yaxis2=dict(
                 title='Error (Residuo)',
                 overlaying='y',
@@ -320,7 +320,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
             hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
         ))
         fig.update_layout(
-            **layout_template("USD Real vs Predicho (Extra)", modo_oscuro),
+            **layout_template("Prediccion vs Real Últimos 30 días con errores", modo_oscuro),
             yaxis2=dict(
                 title='Error (Residuo)',
                 overlaying='y',
@@ -365,7 +365,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Historica":
             hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
         ))
         fig.update_layout(
-            **layout_template("USD Real vs Predicho (Extra)", modo_oscuro),
+            **layout_template("Predicción Diaria vs Real Histórica con errores", modo_oscuro),
             yaxis2=dict(
                 title='Error (Residuo)',
                 overlaying='y',
