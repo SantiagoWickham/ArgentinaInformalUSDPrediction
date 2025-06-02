@@ -282,7 +282,7 @@ elif hoja_sel == "Real vs Predicho":
                 linecolor='gray'
             )
         )
-    fig.update_layout(**layout_template("Real vs Predicho Mensual", modo_oscuro))
+    fig.update_layout(**layout_template("USD Real vs Predicho Mensual", modo_oscuro))
 
 elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
     df_extra = cargar_hoja_diaria(SHEET_ID_DIARIA, "Prediccion Diaria vs Real Últimos 30 días")
