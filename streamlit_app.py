@@ -47,7 +47,7 @@ def cargar_hoja(sheet_id, sheet_name):
 
 # ID Google Sheets para datos diarios
 SHEET_ID_DIARIA = "1mCCiSDOdbp2lm90nnAAeQ9dBRO3Mh8_v"
-HOJAS_DIARIAS = ["Prediccion vs Real Últimos 30 días"]
+HOJAS_DIARIAS = ["Prediccion Diaria vs Real Últimos 30 días"]
 
 # Función para cargar hoja diaria
 # @st.cache_data(show_spinner=True)
@@ -57,7 +57,7 @@ def cargar_hoja_diaria(sheet_id, sheet_name):
     df = pd.read_csv(url)
 
     # Formateo de fechas: chequeamos si la columna viene como "FECHA" o como "Fecha"
-    if sheet_name == "Prediccion vs Real Últimos 30 días":
+    if sheet_name == "Prediccion Diaria vs Real Últimos 30 días":
         if 'FECHA' in df.columns:
             df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
             df = df.sort_values('FECHA')
@@ -288,8 +288,8 @@ elif hoja_sel == "Real vs Predicho":
                 linecolor='gray'
             )
         )
-elif hoja_sel == "Prediccion vs Real Últimos 30 días":
-    df_extra = cargar_hoja_diaria(SHEET_ID_DIARIA, "Prediccion vs Real Últimos 30 días")
+elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
+    df_extra = cargar_hoja_diaria(SHEET_ID_DIARIA, "Prediccion Diaria vs Real Últimos 30 días")
 
     # Prediccion vs Real Últimos 30 días
     fig.add_trace(go.Scatter(
