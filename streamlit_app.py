@@ -60,11 +60,6 @@ def cargar_hoja_diaria(sheet_id, sheet_name):
     if 'Fecha' in df.columns:
         df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
         df = df.sort_values('Fecha')
-    else:
-        # Si en el futuro cambia el encabezado, alertamos.
-        st.error(f"No se encontró ninguna columna de fecha en la hoja “{sheet_name}”.")
-        st.stop()
-
     return df
 
 # Combinar HOJAS y HOJAS_DIARIAS
