@@ -67,7 +67,7 @@ with st.sidebar:
     st.header("⚙️ Configuración")
     
     # Selección hoja
-    hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", HOJAS)
+    hoja_sel = st.selectbox("Seleccioná el tipo de gráfico", HOJAS, HOJAS_DIARIAS)
     
     # Modo oscuro/claro
     modo_oscuro = st.checkbox("Modo oscuro", value=False)
@@ -268,7 +268,7 @@ elif hoja_sel == "Real vs Predicho":
             )
         )
 elif hoja_sel == "Prediccion vs Real Últimos 30 días":
-    df_extra = data["Extra"]  # Asegurate de que "Extra" esté bien escrito según el nombre de la hoja
+    df_extra = data["Prediccion vs Real Últimos 30 días"] 
 
     # Prediccion vs Real Últimos 30 días
     fig.add_trace(go.Scatter(
