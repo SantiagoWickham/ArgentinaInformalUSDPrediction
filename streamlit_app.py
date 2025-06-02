@@ -347,8 +347,8 @@ elif hoja_sel == "Prediccion Diaria vs Real Historica":
         y=df_extra['Real'],
         mode='lines+markers',
         name='Real (USD/ARS Blue)',
-        line=dict(color=COLOR_PALETA["real"], width=3),
-        marker=dict(size=6),
+        line=dict(color=COLOR_PALETA["real"], width=0.5),
+        marker=dict(size=3),
         hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
     ))
     fig.add_trace(go.Scatter(
@@ -356,8 +356,8 @@ elif hoja_sel == "Prediccion Diaria vs Real Historica":
         y=df_extra['Predicción'],
         mode='lines+markers',
         name='Predicción Diaria',
-        line=dict(color=COLOR_PALETA["predicho_cp"], width=3, dash='dash'),
-        marker=dict(size=6),
+        line=dict(color=COLOR_PALETA["predicho_cp"], width=0.5, dash='dash'),
+        marker=dict(size=3),
         hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
     ))
     if mostrar_residuos:
