@@ -15,10 +15,13 @@ st.title("📈 Visualización del Modelo Econométrico del USD Blue")
 # Descripción introductoria
 st.markdown("""
 Este dashboard interactivo permite visualizar el comportamiento histórico del dólar blue en Argentina,  
-así como las proyecciones de corto y largo plazo generadas mediante un modelo econométrico.  
+así como las proyecciones con espectativas de corto y largo plazo generadas mediante un modelo econométrico autoregresivo.  
 Este es un modelo one month ahead (predicción a un mes), por lo que las proyecciones para períodos t+2  
 en adelante se realizan bajo el supuesto *ceteris paribus* en las variables macroeconómicas, es decir,  
 considerando que estas se mantienen constantes.
+Para la predicción diaria, se utiliza un modelo, Random Forest Regressor, optimizando sus hiperparámetros 
+mediante búsqueda aleatoria con validación temporal (TimeSeriesSplit).
+Una vez ajustado el modelo, calcula el error absoluto medio (MAE) in-sample y sobre los últimos 30 días, para autoajustarse.
 
 ---
 """)
@@ -377,8 +380,8 @@ with st.sidebar:
     st.download_button("⬇️ Descargar CSV", data=csv_buffer, file_name=f"{hoja_sel.replace(' ', '_')}.csv", mime="text/csv")
     st.download_button("⬇️ Descargar imagen PNG", data=img_bytes, file_name=f"{hoja_sel.replace(' ', '_')}.png", mime="image/png")
 
-# Sección colapsable "Sobre el modelo"
-with st.expander("📖 Sobre el modelo"):
+# Sección colapsable "Sobre el modelo Mensual"
+with st.expander("📖 Sobre el modelo Mensual"):
     st.markdown("""
     **Metodología del modelo econométrico:**
 
@@ -392,6 +395,29 @@ with st.expander("📖 Sobre el modelo"):
 
     El modelo se ajusta con datos históricos mensuales, y se valida con métricas de error  
     como MAE y RMSE. Las predicciones de largo plazo asumen estabilidad en las variables macro.
+    """)
+
+# Sección colapsable "Sobre el modelo Diario"
+with st.expander("📖 Sobre el modelo Diario"):
+    st.markdown("""
+    **Metodología del modelo econométrico:**
+
+    -**Tipo de modelo:** Random Forest Regressor (bosques aleatorios) para predicción diaria.
+    -**Variables incluidas:** IPC, Reservas Internacionales, BADLAR, Riesgo País, tipo de cambio oficial (TC) y 
+        dólar MEP, todas resumidas en rezagos (lags) de 1, 2 y 3 días.
+    -**Supuestos clave:**
+        No se asume linealidad estricta: el Random Forest captura relaciones no lineales entre los rezagos de 
+        las variables macro y el precio del USD blue.
+        Se considera que las variables macroeconómicas (IPC, Reservas, BADLAR, Riesgo País, TC, MEP) son 
+        exógenas respecto al USD blue en el horizonte diario.
+        Aunque no exige homocedasticidad ni normalidad de residuos, se espera que las observaciones estén 
+        suficientemente representadas en el conjunto de entrenamiento para evitar sesgos.
+        Modelo one-day-ahead (predicción al día siguiente), utilizando tres rezagos para cada variable.
+        El modelo se entrena con datos históricos diarios consolidados (último valor disponible por día) 
+        y se ajustan hiperparámetros mediante búsqueda aleatoria con validación temporal (TimeSeriesSplit). 
+        La validación se realiza calculando MAE (error absoluto medio) in‐sample y sobre los últimos 30 días. 
+        Para predicciones a largo plazo diario se asume cierta estabilidad en la dinámica de las variables macro,
+        aunque el Random Forest permite adaptar patrones no lineales cambiantes.
     """)
 
 # Footer
