@@ -289,7 +289,7 @@ elif hoja_sel == "Real vs Predicho":
             )
         )
 elif hoja_sel == "Prediccion vs Real Últimos 30 días":
-    df_extra = data["Prediccion vs Real Últimos 30 días"] 
+    df_extra = cargar_hoja_diaria(SHEET_ID_DIARIA, "Prediccion vs Real Últimos 30 días")
 
     # Prediccion vs Real Últimos 30 días
     fig.add_trace(go.Scatter(
