@@ -25,7 +25,7 @@ considerando que estas se mantienen constantes.
 
 # ID Google Sheets
 SHEET_ID = "1jmzjQvTRWu9Loq_Gpn2SFCvVgo_qPo1X"
-HOJAS = ["Datos Originales", "Prediccion_CP", "Prediccion_LP", "Real vs Predicho"]
+HOJAS = ["Datos Originales", "Prediccion mirada CP", "Prediccion mirada LP", "Real vs Predicho"]
 
 # Función para cargar hojas
 # @st.cache_data(show_spinner=True)
@@ -37,7 +37,7 @@ def cargar_hoja(sheet_id, sheet_name):
     if sheet_name == "Datos Originales":
         df['MES'] = pd.to_datetime(df['MES'], errors='coerce')
         df = df.sort_values('MES')
-    elif sheet_name in ["Prediccion_CP", "Prediccion_LP"]:
+    elif sheet_name in ["Prediccion mirada CP", "Prediccion_LP"]:
         df['Mes'] = pd.to_datetime(df['Mes'], errors='coerce')
         df = df.sort_values('Mes')
     elif sheet_name == "Real vs Predicho":
@@ -168,7 +168,7 @@ if hoja_sel == "Datos Originales":
     ))
     fig.update_layout(**layout_template("USD Blue histórico (desde 2020)", modo_oscuro))
 
-elif hoja_sel == "Prediccion_CP":
+elif hoja_sel == "Prediccion mirada CP":
     df_hist = data["Datos Originales"]
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
@@ -206,7 +206,7 @@ elif hoja_sel == "Prediccion_CP":
 
     fig.update_layout(**layout_template("Predicción a Corto Plazo", modo_oscuro))
 
-elif hoja_sel == "Prediccion_LP":
+elif hoja_sel == "Prediccion mirada LP":
     df_hist = data["Datos Originales"]
     df_hist_lp = df_hist[df_hist['MES'] >= '2020-01-01']
     # Real
