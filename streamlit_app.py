@@ -55,10 +55,20 @@ def cargar_hoja_diaria(sheet_id, sheet_name):
     sheet_name_encoded = urllib.parse.quote(sheet_name)
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name_encoded}"
     df = pd.read_csv(url)
-    # Formateo fechas
+
+    # Formateo de fechas: chequeamos si la columna viene como "FECHA" o como "Fecha"
     if sheet_name == "Prediccion vs Real Últimos 30 días":
-        df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
-        df = df.sort_values('FECHA')
+        if 'FECHA' in df.columns:
+            df['FECHA'] = pd.to_datetime(df['FECHA'], errors='coerce')
+            df = df.sort_values('FECHA')
+        elif 'Fecha' in df.columns:
+            df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
+            df = df.sort_values('Fecha')
+        else:
+            # En caso de que el encabezado cambie nuevamente, mostramos un aviso
+            st.error(f"No se encontró ninguna columna de fecha en la hoja “{sheet_name}”.")
+            st.stop()
+
     return df
 
 # Combinar HOJAS y HOJAS_DIARIAS
