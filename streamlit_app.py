@@ -47,7 +47,7 @@ def cargar_hoja(sheet_id, sheet_name):
 
 # ID Google Sheets para datos diarios
 SHEET_ID_DIARIA = "1mCCiSDOdbp2lm90nnAAeQ9dBRO3Mh8_v"
-HOJAS_DIARIAS = ["Prediccion Diaria vs Real Últimos 30 días"]
+HOJAS_DIARIAS = ["Prediccion Diaria vs Real Últimos 30 días", "Prediccion Diaria vc Real Historica"]
 
 # Función para cargar hoja diaria
 # @st.cache_data(show_spinner=True)
