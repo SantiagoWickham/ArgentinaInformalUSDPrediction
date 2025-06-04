@@ -3,6 +3,14 @@ import pandas as pd
 import urllib.parse
 import plotly.graph_objs as go
 import numpy as np
+import datetime
+
+# Día de hoy
+hoy = pd.Timestamp.today().normalize()
+# Último día de este mes
+fin_mes_actual = hoy + pd.offsets.MonthEnd(0)
+# Diferencia de días hasta fin de mes
+dias_a_restar = (fin_mes_actual - hoy).days
 
 # Configuración de página
 st.set_page_config(
@@ -166,6 +174,8 @@ elif hoja_sel == "Prediccion mirada CP":
     df_hist = cargar_hoja(SHEET_ID, "Datos Originales")
     fecha_6m_antes = df_hist['MES'].max() - pd.DateOffset(months=6)
     df_hist_cp = df_hist[df_hist['MES'] >= fecha_6m_antes]
+    df_hist_cp['MES'] = df_hist_cp['MES'] + pd.offsets.MonthEnd(0) - pd.Timedelta(days=dias_a_restar)
+
     # Real
     fig.add_trace(go.Scatter(
         x=df_hist_cp['MES'],
