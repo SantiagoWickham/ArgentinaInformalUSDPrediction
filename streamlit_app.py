@@ -213,6 +213,8 @@ elif hoja_sel == "Prediccion mirada CP":
 elif hoja_sel == "Prediccion mirada LP":
     df_hist = cargar_hoja(SHEET_ID, "Datos Originales")
     df_hist_lp = df_hist[df_hist['MES'] >= '2020-01-01']
+    df_hist_lp['MES'] = df_hist_lp['MES'] + pd.offsets.MonthEnd(0) - pd.Timedelta(days=dias_a_restar)
+
     # Real
     fig.add_trace(go.Scatter(
         x=df_hist_lp['MES'],
