@@ -159,6 +159,8 @@ fig = go.Figure()
 
 if hoja_sel == "Datos Originales":
     df_hist = df[df['MES'] >= '2020-01-01']
+    df_hist['MES'] = df_hist['MES'] + pd.offsets.MonthEnd(0) - pd.Timedelta(days=dias_a_restar)
+
     fig.add_trace(go.Scatter(
         x=df_hist['MES'],
         y=df_hist['USD_VENTA'],
