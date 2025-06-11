@@ -311,16 +311,16 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
         name='Prediccion Diaria vs Real Últimos 30 días',
         line=dict(color=COLOR_PALETA["real"], width=3),
         marker=dict(size=6),
-        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+        hovertemplate='%{x|%d-%m-%Y}: %{y:.2f} ARS<extra></extra>'
     ))
     fig.add_trace(go.Scatter(
         x=df_extra['Fecha'],
         y=df_extra['Predicción'],
         mode='lines+markers',
-        name='USD Predicho (Extra)',
+        name='USD Predicho',
         line=dict(color=COLOR_PALETA["predicho_cp"], width=3, dash='dash'),
         marker=dict(size=6),
-        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+        hovertemplate='%{x|%d-%m-%Y}: %{y:.2f} ARS<extra></extra>'
     ))
 
     # Errores (residuos)
@@ -333,7 +333,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
             marker_color=COLOR_PALETA["error"],
             opacity=0.6,
             yaxis='y2',
-            hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+            hovertemplate='%{x|%d-%m-%Y}: %{y:.2f} ARS<extra></extra>'
         ))
         fig.update_layout(
             **layout_template("Prediccion vs Real Últimos 30 días con errores", modo_oscuro),
