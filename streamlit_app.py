@@ -453,7 +453,7 @@ with st.expander("📖 Sobre el modelo Mensual"):
       - Se importa desde Google Sheets series diarias de: USD Blue, IPC, Reservas, M2, BADLAR, Riesgo País, TC y MEP.  
     - **Unificación Mensual**  
       - Para cada serie se toma el **último valor disponible** de cada mes.  
-      - Se mergean todas las variables por período “MES” y se convierte este a fecha (“último día del mes”).  
+      - Se mergean todas las variables por período (MES) y se convierte este a fecha (último día del mes).  
       - Se rellenan vacíos con *forward fill* para garantizar series continuas.
 
     ---
