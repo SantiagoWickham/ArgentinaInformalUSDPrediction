@@ -475,7 +475,7 @@ with st.expander("📖 Sobre el modelo Mensual"):
     - **Métricas de Error**  
       - MAE y RMSE sobre el conjunto de test.  
     - **Análisis de Sensibilidad**  
-      - Se exploran múltiples proporciones de test (10 %–55 %) para verificar estabilidad de errores.
+      - Se exploran múltiples proporciones de test (10 5 - 55 %) para verificar estabilidad de errores.
 
     ---
 
