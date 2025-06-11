@@ -303,7 +303,7 @@ elif hoja_sel == "Real vs Predicho":
 elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
     df_extra = cargar_hoja_diaria(SHEET_ID_DIARIA, "Prediccion Diaria vs Real Últimos 30 días")
 
-    # Prediccion vs Real Últimos 30 días
+    # Agregas tus trazos igual que antes
     fig.add_trace(go.Scatter(
         x=df_extra['Fecha'],
         y=df_extra['Real'],
@@ -323,7 +323,16 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
         hovertemplate='%{x|%d-%m-%Y}: %{y:.2f} ARS<extra></extra>'
     ))
 
-    # Errores (residuos)
+    # Preparas layout base
+    layout = layout_template("Prediccion vs Real Últimos 30 días", modo_oscuro)
+
+    # Aquí modificas solo el eje x para formato día/mes y dtick diario
+    layout['xaxis'].update({
+        'tickformat': '%d-%m',
+        'dtick': 'D1',
+        'tickangle': 45,
+    })
+
     if mostrar_residuos:
         residuos = df_extra['Real'] - df_extra['Predicción']
         fig.add_trace(go.Bar(
@@ -336,7 +345,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
             hovertemplate='%{x|%d-%m-%Y}: %{y:.2f} ARS<extra></extra>'
         ))
         fig.update_layout(
-            **layout_template("Prediccion vs Real Últimos 30 días con errores", modo_oscuro),
+            **layout,
             yaxis2=dict(
                 title='Error (Residuo)',
                 overlaying='y',
@@ -347,7 +356,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Últimos 30 días":
             )
         )
     else:
-        fig.update_layout(**layout_template("Prediccion vs Real Últimos 30 días", modo_oscuro))
+        fig.update_layout(**layout)
         
 elif hoja_sel == "Prediccion Diaria vs Real Historica":
     df_extra = cargar_hoja_diaria(SHEET_ID_DIARIA, "Prediccion Diaria vs Real Historica")
