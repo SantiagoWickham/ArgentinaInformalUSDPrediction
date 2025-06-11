@@ -481,7 +481,7 @@ with st.expander("📖 Sobre el modelo Mensual"):
 
     ### 5. Proyección Mensual  
 
-    1. **Short‑Term (2 meses)** y **Long‑Term (12 meses)**  
+    1. **Short Term (2 meses)** y **Long Term (12 meses)**  
        - Se calculan tasas de crecimiento promedio de los últimos meses para cada indicador.  
        - Se generan predicciones iterativas mes a mes, con intervalo de confianza al 95 %.    
     2. **Visualización**  
