@@ -435,7 +435,7 @@ with st.sidebar:
 # Sección colapsable "Sobre el modelo Mensual"
 with st.expander("📖 Sobre el modelo Mensual"):
     st.markdown("""
-##**Metodología de Modelado Mensual y Proyección del USD Blue**
+## **Metodología de Modelado Mensual y Proyección del USD Blue**
 
 ---
 
@@ -492,7 +492,7 @@ Con esta metodología, combinamos **rigor estadístico**, **diagnósticos exhaus
 # Sección colapsable "Sobre el modelo Diario"
 with st.expander("📖 Sobre el modelo Diario"):
     st.markdown("""
-##**Metodología de Pronóstico Diario del USD Blue con Enfoque Rolling**
+## **Metodología de Pronóstico Diario del USD Blue con Enfoque Rolling**
 
 ---
 
