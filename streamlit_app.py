@@ -435,18 +435,61 @@ with st.sidebar:
 # Sección colapsable "Sobre el modelo Mensual"
 with st.expander("📖 Sobre el modelo Mensual"):
     st.markdown("""
-    **Metodología del modelo econométrico:**
+        st.title("Metodología de Modelado Mensual y Proyección del USD Blue")
 
-    - **Tipo de regresión:** Regresión lineal múltiple con variables macroeconómicas.
-    - **Variables incluidas:** IPC, Reservas Internacionales, BADLAR, Riesgo País, MEP.
-    - **Supuestos clave:**
-      - Linealidad entre variables y precio USD blue.
-      - Variables macroeconómicas consideradas exógenas.
-      - Independencia y homocedasticidad de residuos.
-      - Modelo one-month-ahead (predicción a un mes).
+    st.markdown("""
+    **Metodología de Análisis y Proyección Mensual del USD Blue**
 
-    El modelo se ajusta con datos históricos mensuales, y se valida con métricas de error      
-    como MAE y RMSE. Las predicciones de largo plazo asumen estabilidad en las variables macro.
+    ---
+
+    ### 1. Propósito y Alcance  
+    Implementar un flujo de trabajo **mensual** que combine regresión lineal clásica con diagnósticos de calidad de modelo y proyecciones de corto y largo plazo, basado en datos macroeconómicos consolidados al último día de cada mes.
+
+    ---
+
+    ### 2. Preparación y Consolidación de Datos  
+
+    - **Ingreso de Datos**  
+      - Se importa desde Google Sheets series diarias de: USD Blue, IPC, Reservas, M2, BADLAR, Riesgo País, TC y MEP.  
+    - **Unificación Mensual**  
+      - Para cada serie se toma el **último valor disponible** de cada mes.  
+      - Se mergean todas las variables por período “MES” y se convierte este a fecha (“último día del mes”).  
+      - Se rellenan vacíos con *forward fill* para garantizar series continuas.
+
+    ---
+
+    ### 3. Diagnósticos de Calidad  
+
+    - **Heterocedasticidad**: test de Breusch–Pagan.  
+    - **Autocorrelación de residuos**: Durbin–Watson y Breusch–Godfrey.  
+    - **Multicolinealidad**: Variance Inflation Factor (VIF) para cada predictor.  
+
+    Estos tests aseguran validez de inferencias y robustez del modelo.
+
+    ---
+
+    ### 4. Evaluación y Validación  
+
+    - **División Train/Test**  
+      - 85 % de los datos para entrenamiento, 15 % para prueba.  
+    - **Métricas de Error**  
+      - MAE y RMSE sobre el conjunto de test.  
+    - **Análisis de Sensibilidad**  
+      - Se exploran múltiples proporciones de test (10 %–55 %) para verificar estabilidad de errores.
+
+    ---
+
+    ### 5. Proyección Mensual  
+
+    1. **Short‑Term (2 meses)** y **Long‑Term (12 meses)**  
+       - Se calculan tasas de crecimiento promedio de los últimos meses para cada indicador.  
+       - Se generan predicciones iterativas mes a mes, con intervalo de confianza al 95 %.    
+    2. **Visualización**  
+       - Gráficos de serie histórica contra proyección y bandas de confianza.  
+
+    ---
+
+    Con esta metodología, combinamos **rigor estadístico**, **diagnósticos exhaustivos** y **proyecciones con confianza**, ofreciendo una visión clara del comportamiento mensual del USD Blue y su posible evolución.
     """)
 # Sección colapsable "Sobre el modelo Diario"
 with st.expander("📖 Sobre el modelo Diario"):
