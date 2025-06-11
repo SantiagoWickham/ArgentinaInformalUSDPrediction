@@ -460,8 +460,8 @@ with st.expander("📖 Sobre el modelo Mensual"):
 
     ### 3. Diagnósticos de Calidad  
 
-    - **Heterocedasticidad**: test de Breusch–Pagan.  
-    - **Autocorrelación de residuos**: Durbin–Watson y Breusch–Godfrey.  
+    - **Heterocedasticidad**: test de Breusch Pagan.  
+    - **Autocorrelación de residuos**: Durbin Watson y Breusch Godfrey.  
     - **Multicolinealidad**: Variance Inflation Factor (VIF) para cada predictor.  
 
     Estos tests aseguran validez de inferencias y robustez del modelo.
