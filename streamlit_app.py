@@ -471,11 +471,11 @@ with st.expander("📖 Sobre el modelo Mensual"):
     ### 4. Evaluación y Validación  
 
     - **División Train/Test**  
-      - 85 %% de los datos para entrenamiento, 15 %% para prueba.  
+      - 85 % de los datos para entrenamiento, 15 % para prueba.  
     - **Métricas de Error**  
       - MAE y RMSE sobre el conjunto de test.  
     - **Análisis de Sensibilidad**  
-      - Se exploran múltiples proporciones de test (10 5 - 55 %%) para verificar estabilidad de errores.
+      - Se exploran múltiples proporciones de test (10 5 - 55 %) para verificar estabilidad de errores.
 
     ---
 
@@ -483,7 +483,7 @@ with st.expander("📖 Sobre el modelo Mensual"):
 
     1. **Short‑Term (2 meses)** y **Long‑Term (12 meses)**  
        - Se calculan tasas de crecimiento promedio de los últimos meses para cada indicador.  
-       - Se generan predicciones iterativas mes a mes, con intervalo de confianza al 95 %%.    
+       - Se generan predicciones iterativas mes a mes, con intervalo de confianza al 95 %.    
     2. **Visualización**  
        - Gráficos de serie histórica contra proyección y bandas de confianza.  
 
