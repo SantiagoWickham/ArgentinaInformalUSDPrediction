@@ -358,7 +358,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Historica":
         name='Real (USD/ARS Blue)',
         line=dict(color=COLOR_PALETA["real"], width=0.5),
         marker=dict(size=3),
-        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+        hovertemplate='%{x|%d-%m-%Y}: %{y:.2f} ARS<extra></extra>'
     ))
     fig.add_trace(go.Scatter(
         x=df_extra['Fecha'],
@@ -367,7 +367,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Historica":
         name='Predicción Diaria',
         line=dict(color=COLOR_PALETA["predicho_cp"], width=0.5, dash='dash'),
         marker=dict(size=3),
-        hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+        hovertemplate='%{x|%d-%m-%Y}: %{y:.2f} ARS<extra></extra>'
     ))
     if mostrar_residuos:
         residuos = df_extra['Real'] - df_extra['Predicción']
@@ -378,7 +378,7 @@ elif hoja_sel == "Prediccion Diaria vs Real Historica":
             marker_color=COLOR_PALETA["error"],
             opacity=0.6,
             yaxis='y2',
-            hovertemplate='%{x|%Y-%m-%d}: %{y:.2f} ARS<extra></extra>'
+            hovertemplate='%{x|%d-%m-%Y}: %{y:.2f} ARS<extra></extra>'
         ))
         fig.update_layout(
             **layout_template("Predicción Diaria vs Real Histórica con errores", modo_oscuro),
