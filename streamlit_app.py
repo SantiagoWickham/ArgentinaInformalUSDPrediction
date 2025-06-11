@@ -18,17 +18,18 @@ st.set_page_config(
     layout="wide",
     page_icon="📈"
 )
-st.title("📈 Visualización del Modelo Econométrico del USD Blue")
+st.title("📈 USD Blue Forecast Dashboard")
 
 # Descripción introductoria
 st.markdown("""
-Este dashboard interactivo permite visualizar el comportamiento histórico del dólar blue en Argentina,  así como las proyecciones con espectativas de corto y largo plazo generadas mediante un modelo econométrico autoregresivo.  
-Este es un modelo one month ahead (predicción a un mes), por lo que las proyecciones para períodos t+2  
-en adelante se realizan bajo el supuesto *ceteris paribus* en las variables macroeconómicas, es decir,  considerando que estas se mantienen constantes.    
-Para la predicción diaria, se utiliza un modelo, Random Forest Regressor, optimizando sus hiperparámetros mediante búsqueda aleatoria con validación temporal (TimeSeriesSplit).    
-Una vez ajustado el modelo, calcula el error absoluto medio (MAE) in-sample y sobre los últimos 30 días, para autoajustarse.
+Este panel interactivo ofrece:
 
----
+- **Visión Histórica:** Serie mensual y diaria del dólar blue en Argentina.  
+- **Proyección Mensual:** Modelo autoregresivo one‑month‑ahead, asumiendo estabilidad ceteris paribus de las variables macroeconómicas más allá de t+1.  
+- **Pronóstico Diario:** Random Forest Regressor optimizado con validación temporal (`TimeSeriesSplit`) y búsqueda aleatoria de hiperparámetros (`RandomizedSearchCV`).  
+- **Evaluación Dinámica:** Cálculo automático de MAE in‑sample y MAE en los últimos 30 días para monitorear y ajustar el desempeño en tiempo real.
+
+Con esta combinación de modelos estadístico y de machine learning, el dashboard facilita el análisis de tendencias y la toma de decisiones con proyecciones confiables en horizontes mensual y diario.
 """)
 
 # ID Google Sheets
