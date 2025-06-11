@@ -435,130 +435,128 @@ with st.sidebar:
 # Sección colapsable "Sobre el modelo Mensual"
 with st.expander("📖 Sobre el modelo Mensual"):
     st.markdown("""
-        st.title("Metodología de Modelado Mensual y Proyección del USD Blue")
+# Sección colapsable "Sobre el modelo Mensual"
+**Metodología de Modelado Mensual y Proyección del USD Blue**
 
-    st.markdown("""
-    **Metodología de Análisis y Proyección Mensual del USD Blue**
+---
 
-    ---
+### 1. Propósito y Alcance  
+Implementar un flujo de trabajo **mensual** que combine regresión lineal clásica con diagnósticos de calidad de modelo y proyecciones de corto y largo plazo, basado en datos macroeconómicos consolidados al último día de cada mes.
 
-    ### 1. Propósito y Alcance  
-    Implementar un flujo de trabajo **mensual** que combine regresión lineal clásica con diagnósticos de calidad de modelo y proyecciones de corto y largo plazo, basado en datos macroeconómicos consolidados al último día de cada mes.
+---
 
-    ---
+### 2. Preparación y Consolidación de Datos  
 
-    ### 2. Preparación y Consolidación de Datos  
+- **Ingreso de Datos**  
+  - Se importa desde Google Sheets series diarias de: USD Blue, IPC, Reservas, M2, BADLAR, Riesgo País, TC y MEP.  
+- **Unificación Mensual**  
+  - Para cada serie se toma el **último valor disponible** de cada mes.  
+  - Se mergean todas las variables por período (MES) y se convierte este a fecha (último día del mes).  
+  - Se rellenan vacíos con *forward fill* para garantizar series continuas.
 
-    - **Ingreso de Datos**  
-      - Se importa desde Google Sheets series diarias de: USD Blue, IPC, Reservas, M2, BADLAR, Riesgo País, TC y MEP.  
-    - **Unificación Mensual**  
-      - Para cada serie se toma el **último valor disponible** de cada mes.  
-      - Se mergean todas las variables por período (MES) y se convierte este a fecha (último día del mes).  
-      - Se rellenan vacíos con *forward fill* para garantizar series continuas.
+---
 
-    ---
+### 3. Diagnósticos de Calidad  
 
-    ### 3. Diagnósticos de Calidad  
+- **Heterocedasticidad**: test de Breusch-Pagan.  
+- **Autocorrelación de residuos**: Durbin-Watson y Breusch-Godfrey.  
+- **Multicolinealidad**: Variance Inflation Factor (VIF) para cada predictor.  
 
-    - **Heterocedasticidad**: test de Breusch Pagan.  
-    - **Autocorrelación de residuos**: Durbin Watson y Breusch Godfrey.  
-    - **Multicolinealidad**: Variance Inflation Factor (VIF) para cada predictor.  
+Estos tests aseguran validez de inferencias y robustez del modelo.
 
-    Estos tests aseguran validez de inferencias y robustez del modelo.
+---
 
-    ---
+### 4. Evaluación y Validación  
 
-    ### 4. Evaluación y Validación  
+- **División Train/Test**  
+  - 85 % de los datos para entrenamiento, 15 % para prueba.  
+- **Métricas de Error**  
+  - MAE y RMSE sobre el conjunto de test.  
+- **Análisis de Sensibilidad**  
+  - Se exploran múltiples proporciones de test (10 %–55 %) para verificar estabilidad de errores.
 
-    - **División Train/Test**  
-      - 85 % de los datos para entrenamiento, 15 % para prueba.  
-    - **Métricas de Error**  
-      - MAE y RMSE sobre el conjunto de test.  
-    - **Análisis de Sensibilidad**  
-      - Se exploran múltiples proporciones de test (10 5 - 55 %) para verificar estabilidad de errores.
+---
 
-    ---
+### 5. Proyección Mensual  
 
-    ### 5. Proyección Mensual  
+1. **Short-Term (2 meses)** y **Long-Term (12 meses)**  
+   - Se calculan tasas de crecimiento promedio de los últimos meses para cada indicador.  
+   - Se generan predicciones iterativas mes a mes, con intervalo de confianza al 95 %.  
+2. **Visualización**  
+   - Gráficos de serie histórica contra proyección y bandas de confianza.  
 
-    1. **Short Term (2 meses)** y **Long Term (12 meses)**  
-       - Se calculan tasas de crecimiento promedio de los últimos meses para cada indicador.  
-       - Se generan predicciones iterativas mes a mes, con intervalo de confianza al 95 %.    
-    2. **Visualización**  
-       - Gráficos de serie histórica contra proyección y bandas de confianza.  
+---
 
-    ---
-
-    Con esta metodología, combinamos **rigor estadístico**, **diagnósticos exhaustivos** y **proyecciones con confianza**, ofreciendo una visión clara del comportamiento mensual del USD Blue y su posible evolución.
+Con esta metodología, combinamos **rigor estadístico**, **diagnósticos exhaustivos** y **proyecciones con confianza**, ofreciendo una visión clara del comportamiento mensual del USD Blue y su posible evolución.
     """)
+
 # Sección colapsable "Sobre el modelo Diario"
 with st.expander("📖 Sobre el modelo Diario"):
-    st.title("Metodología de Predicción del USD Blue")
-
     st.markdown("""
-    **Metodología de Pronóstico Diario del USD Blue con Enfoque Rolling**
+# Sección colapsable "Sobre el modelo Diario"
+**Metodología de Pronóstico Diario del USD Blue con Enfoque Rolling**
 
-    ---
+---
 
-    ### 1. Propósito y Enfoque
-    Desarrollar un sistema de pronóstico **one‑day‑ahead** para el precio del dólar paralelo en Argentina, basado en la evolución reciente de indicadores macroeconómicos clave. Se busca capturar patrones dinámicos y no lineales mediante un esquema de validación temporal iterativa (“rolling forecast”), asegurando que cada predicción utilice únicamente información disponible hasta ese día.
+### 1. Propósito y Enfoque
+Desarrollar un sistema de pronóstico **one-day-ahead** para el precio del dólar paralelo en Argentina, basado en la evolución reciente de indicadores macroeconómicos clave. Se busca capturar patrones dinámicos y no lineales mediante un esquema de validación temporal iterativa (“rolling forecast”), asegurando que cada predicción utilice únicamente información disponible hasta ese día.
 
-    ---
+---
 
-    ### 2. Componentes Fundamentales
+### 2. Componentes Fundamentales
 
-    - **Selección de Variables**  
-      - Indicadores macro exógenos: IPC, Reservas Internacionales, BADLAR, Riesgo País, Tipo de Cambio Oficial y Dólar MEP.  
-      - Se asume que estas variables no son afectadas por el USD Blue en horizontes de 1–3 días.
+- **Selección de Variables**  
+  - Indicadores macro exógenos: IPC, Reservas Internacionales, BADLAR, Riesgo País, Tipo de Cambio Oficial y Dólar MEP.  
+  - Se asume que estas variables no son afectadas por el USD Blue en horizontes de 1–3 días.
 
-    - **Construcción de Rezagos (Lags)**  
-      - Para cada indicador, se incorporan sus valores de 1, 2 y 3 días atrás.  
-      - Esto permite al modelo captar tanto efectos inmediatos como dinámicas de corto plazo.
+- **Construcción de Rezagos (Lags)**  
+  - Para cada indicador, se incorporan sus valores de 1, 2 y 3 días atrás.  
+  - Esto permite al modelo captar tanto efectos inmediatos como dinámicas de corto plazo.
 
-    - **Modelo de Predicción**  
-      - **Random Forest Regressor**: un ensamble de árboles que maneja relaciones no lineales y tolera outliers, sin requerir transformaciones manuales.
+- **Modelo de Predicción**  
+  - **Random Forest Regressor**: un ensamble de árboles que maneja relaciones no lineales y tolera outliers, sin requerir transformaciones manuales.
 
-    ---
+---
 
-    ### 3. Validación Temporal (“Rolling Forecast”)
+### 3. Validación Temporal (“Rolling Forecast”)
 
-    1. **Partición Dinámica**  
-       - En cada iteración, se entrena con datos hasta el día _t–1_ y se predice el día _t_, evitando filtraciones de información futura.
+1. **Partición Dinámica**  
+   - En cada iteración, se entrena con datos hasta el día _t–1_ y se predice el día _t_, evitando filtraciones de información futura.
 
-    2. **Reentrenamiento Continuo**  
-       - Cada predicción utiliza un modelo reentrenado desde cero, garantizando el uso de la información más reciente.
+2. **Reentrenamiento Continuo**  
+   - Cada predicción utiliza un modelo reentrenado desde cero, garantizando el uso de la información más reciente.
 
-    3. **Evaluación de Desempeño**  
-       - **MAE histórico**: error absoluto medio sobre todas las predicciones fuera de muestra.  
-       - **MAE últimos 30 días**: foco en el rendimiento reciente.
+3. **Evaluación de Desempeño**  
+   - **MAE histórico**: error absoluto medio sobre todas las predicciones fuera de muestra.  
+   - **MAE últimos 30 días**: foco en el rendimiento reciente.
 
-    ---
+---
 
-    ### 4. Optimización de Hiperparámetros
+### 4. Optimización de Hiperparámetros
 
-    - Búsqueda aleatoria con `RandomizedSearchCV` y `TimeSeriesSplit` (5 folds), ajustando:
-      - `n_estimators`, `max_depth`, `min_samples_split`, `min_samples_leaf` y `max_features`.  
-    - Métrica objetivo: minimizar el **Mean Absolute Error (MAE)**.
+- Búsqueda aleatoria con `RandomizedSearchCV` y `TimeSeriesSplit` (5 folds), ajustando:  
+  - `n_estimators`, `max_depth`, `min_samples_split`, `min_samples_leaf` y `max_features`.  
+- Métrica objetivo: minimizar el **Mean Absolute Error (MAE)**.
 
-    ---
+---
 
-    ### 5. Pronóstico en Producción
+### 5. Pronóstico en Producción
 
-    1. Extraer los tres últimos valores reales de cada indicador.  
-    2. Reentrenar el modelo con todo el histórico disponible.  
-    3. Generar la predicción para el día siguiente (“one‑step‑ahead”).
+1. Extraer los tres últimos valores reales de cada indicador.  
+2. Reentrenar el modelo con todo el histórico disponible.  
+3. Generar la predicción para el día siguiente (“one-step-ahead”).
 
-    ---
+---
 
-    ### 6. Supuestos y Consideraciones
+### 6. Supuestos y Consideraciones
 
-    - **Exogeneidad**: los indicadores macro no reaccionan al USD Blue en el corto plazo.  
-    - **Estabilidad temporal**: las relaciones captadas por los lags perduran al menos 1–3 días.  
-    - **Reentrenamiento frecuente**: mitiga la deriva del modelo, aunque incrementa coste computacional.
+- **Exogeneidad**: los indicadores macro no reaccionan al USD Blue en el corto plazo.  
+- **Estabilidad temporal**: las relaciones captadas por los lags perduran al menos 1–3 días.  
+- **Reentrenamiento frecuente**: mitiga la deriva del modelo, aunque incrementa coste computacional.
 
-    ---
+---
 
-    Con este pipeline, garantizamos un **flujo end‑to‑end**: desde la ingesta y limpieza de datos, generación de rezagos, optimización y validación rolling, hasta el pronóstico en producción y la generación de reportes automatizados.
+Con este pipeline, garantizamos un **flujo end-to-end**: desde la ingesta y limpieza de datos, generación de rezagos, optimización y validación rolling, hasta el pronóstico en producción y la generación de reportes automatizados.
     """)
 
     
