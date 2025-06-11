@@ -67,7 +67,7 @@ def cargar_hoja_diaria(sheet_id, sheet_name):
 
     # Si existe columna "Fecha", la convertimos y ordenamos.
     if 'Fecha' in df.columns:
-       df['Fecha'] = pd.to_datetime(df['Fecha'], dayfirst=True, errors='coerce')
+        df['Fecha'] = pd.to_datetime(df['Fecha'], dayfirst=True, errors='coerce')
         df = df.sort_values('Fecha')
     return df
 
