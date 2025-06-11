@@ -450,39 +450,74 @@ with st.expander("📖 Sobre el modelo Mensual"):
     """)
 # Sección colapsable "Sobre el modelo Diario"
 with st.expander("📖 Sobre el modelo Diario"):
+    st.title("Metodología de Predicción del USD Blue")
+
     st.markdown("""
-    **Metodología del modelo econométrico**
-
-    **Tipo de modelo:**  
-    Random Forest Regressor (bosques aleatorios) para predicción diaria.
-
-    **Variables incluidas:**  
-    - IPC  
-    - Reservas Internacionales  
-    - BADLAR  
-    - Riesgo País  
-    - Tipo de cambio oficial (TC)  
-    - Dólar MEP  
-    
-    Cada variable se resume en rezagos (lags) de 1, 2 y 3 días.
-
-    **Supuestos clave:**  
-    1. _No se asume linealidad estricta._ El Random Forest captura relaciones no lineales entre los rezagos de las variables macro y el precio del USD blue.  
-    2. _Variables macroeconómicas exógenas._ Se considera que IPC, Reservas, BADLAR, Riesgo País, TC y MEP no son afectadas por el USD blue en el horizonte diario.  
-    3. _No exige homocedasticidad ni normalidad de residuos._ Sin embargo, se necesita que las observaciones estén bien representadas en el conjunto de entrenamiento para evitar sesgos.  
-    4. _Modelo one-day-ahead._ Predicción al día siguiente usando tres rezagos de cada variable.
-
-    **Proceso de entrenamiento y validación:**  
-    - Se entrena con datos históricos diarios consolidados (último valor disponible por día).  
-    - Hiperparámetros ajustados mediante búsqueda aleatoria con validación temporal (TimeSeriesSplit).  
-    - Métrica principal de evaluación: MAE (error absoluto medio), calculado in‐sample y sobre los últimos 30 días.  
-
-    **Predicciones a largo plazo (diario):**  
-    - Se asume cierta estabilidad en la dinámica de las variables macro.  
-    - El Random Forest permite adaptarse a patrones no lineales cambiantes en el tiempo.
+    **Metodología de Pronóstico Diario del USD Blue con Enfoque Rolling**
 
     ---
+
+    ### 1. Propósito y Enfoque
+    Desarrollar un sistema de pronóstico **one‑day‑ahead** para el precio del dólar paralelo en Argentina, basado en la evolución reciente de indicadores macroeconómicos clave. Se busca capturar patrones dinámicos y no lineales mediante un esquema de validación temporal iterativa (“rolling forecast”), asegurando que cada predicción utilice únicamente información disponible hasta ese día.
+
+    ---
+
+    ### 2. Componentes Fundamentales
+
+    - **Selección de Variables**  
+      - Indicadores macro exógenos: IPC, Reservas Internacionales, BADLAR, Riesgo País, Tipo de Cambio Oficial y Dólar MEP.  
+      - Se asume que estas variables no son afectadas por el USD Blue en horizontes de 1–3 días.
+
+    - **Construcción de Rezagos (Lags)**  
+      - Para cada indicador, se incorporan sus valores de 1, 2 y 3 días atrás.  
+      - Esto permite al modelo captar tanto efectos inmediatos como dinámicas de corto plazo.
+
+    - **Modelo de Predicción**  
+      - **Random Forest Regressor**: un ensamble de árboles que maneja relaciones no lineales y tolera outliers, sin requerir transformaciones manuales.
+
+    ---
+
+    ### 3. Validación Temporal (“Rolling Forecast”)
+
+    1. **Partición Dinámica**  
+       - En cada iteración, se entrena con datos hasta el día _t–1_ y se predice el día _t_, evitando filtraciones de información futura.
+
+    2. **Reentrenamiento Continuo**  
+       - Cada predicción utiliza un modelo reentrenado desde cero, garantizando el uso de la información más reciente.
+
+    3. **Evaluación de Desempeño**  
+       - **MAE histórico**: error absoluto medio sobre todas las predicciones fuera de muestra.  
+       - **MAE últimos 30 días**: foco en el rendimiento reciente.
+
+    ---
+
+    ### 4. Optimización de Hiperparámetros
+
+    - Búsqueda aleatoria con `RandomizedSearchCV` y `TimeSeriesSplit` (5 folds), ajustando:
+      - `n_estimators`, `max_depth`, `min_samples_split`, `min_samples_leaf` y `max_features`.  
+    - Métrica objetivo: minimizar el **Mean Absolute Error (MAE)**.
+
+    ---
+
+    ### 5. Pronóstico en Producción
+
+    1. Extraer los tres últimos valores reales de cada indicador.  
+    2. Reentrenar el modelo con todo el histórico disponible.  
+    3. Generar la predicción para el día siguiente (“one‑step‑ahead”).
+
+    ---
+
+    ### 6. Supuestos y Consideraciones
+
+    - **Exogeneidad**: los indicadores macro no reaccionan al USD Blue en el corto plazo.  
+    - **Estabilidad temporal**: las relaciones captadas por los lags perduran al menos 1–3 días.  
+    - **Reentrenamiento frecuente**: mitiga la deriva del modelo, aunque incrementa coste computacional.
+
+    ---
+
+    Con este pipeline, garantizamos un **flujo end‑to‑end**: desde la ingesta y limpieza de datos, generación de rezagos, optimización y validación rolling, hasta el pronóstico en producción y la generación de reportes automatizados.
     """)
+
     
 # Footer
 st.markdown("---")
